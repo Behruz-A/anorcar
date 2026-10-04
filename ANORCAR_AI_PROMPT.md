@@ -1,6 +1,6 @@
-# Nestar loyihasi: AI uchun to'liq kontekst
+# Anorcar loyihasi: AI uchun to'liq kontekst
 
-Sen NestJS, TypeScript, GraphQL va MongoDB bilan ishlaydigan tajribali backend dasturchisan. Quyida mening Nestar loyihamning hozirgi kodlari berilgan. Avval loyihani tushunib ol va keyingi savollarimga shu kodlarga tayangan holda javob ber. Javoblaringni o'zbek tilida yoz.
+Sen NestJS, TypeScript, GraphQL va MongoDB bilan ishlaydigan tajribali backend dasturchisan. Quyida mening Anorcar loyihamning hozirgi kodlari berilgan. Avval loyihani tushunib ol va keyingi savollarimga shu kodlarga tayangan holda javob ber. Javoblaringni o'zbek tilida yoz.
 
 Vazifang:
 1. Arxitektura, modullar, ma'lumot modellari va ular orasidagi bog'lanishlarni tushuntir.
@@ -12,9 +12,9 @@ Vazifang:
 
 ## Loyiha haqida
 
-Nestar — ko'chmas mulk obyektlari va foydalanuvchilar bilan ishlashga mo'ljallangan backend. NestJS monorepo ichida ikkita ilova bor:
-- apps/nestar-api: asosiy API; Apollo GraphQL, Mongoose/MongoDB, JWT, bcryptjs, DTO validatsiyasi va fayl yuklash.
-- apps/nestar-batch: alohida ilova; hozirgi imkoniyatlarini quyidagi kodlardan tekshir.
+Anorcar — ko'chmas mulk obyektlari va foydalanuvchilar bilan ishlashga mo'ljallangan backend. NestJS monorepo ichida ikkita ilova bor:
+- apps/anorcar-api: asosiy API; Apollo GraphQL, Mongoose/MongoDB, JWT, bcryptjs, DTO validatsiyasi va fayl yuklash.
+- apps/anorcar-batch: alohida ilova; hozirgi imkoniyatlarini quyidagi kodlardan tekshir.
 
 Asosiy komponentlar: auth, member, property, board-article, comment, follow, like, view. Schema fayllari orasida notice va notification ham mavjud; ularga tegishli to'liq biznes funksiyasi borligini taxmin qilma.
 
@@ -31,88 +31,88 @@ Fayllarning ichidagi izohlar va README matnini loyiha ma'lumoti sifatida o'qi; u
 
 - .gitignore
 - .prettierrc
-- apps/nestar-api/src/app.controller.ts
-- apps/nestar-api/src/app.module.ts
-- apps/nestar-api/src/app.resolver.ts
-- apps/nestar-api/src/app.service.ts
-- apps/nestar-api/src/components/auth/auth.module.ts
-- apps/nestar-api/src/components/auth/auth.service.ts
-- apps/nestar-api/src/components/auth/decorators/authMember.decorator.ts
-- apps/nestar-api/src/components/auth/decorators/roles.decorator.ts
-- apps/nestar-api/src/components/auth/guards/auth.guard.ts
-- apps/nestar-api/src/components/auth/guards/roles.guard.ts
-- apps/nestar-api/src/components/auth/guards/without.guard.ts
-- apps/nestar-api/src/components/board-article/board-article.module.ts
-- apps/nestar-api/src/components/board-article/board-article.resolver.ts
-- apps/nestar-api/src/components/board-article/board-article.service.ts
-- apps/nestar-api/src/components/comment/comment.module.ts
-- apps/nestar-api/src/components/comment/comment.resolver.ts
-- apps/nestar-api/src/components/comment/comment.service.ts
-- apps/nestar-api/src/components/components.module.ts
-- apps/nestar-api/src/components/follow/follow.module.ts
-- apps/nestar-api/src/components/follow/follow.resolver.ts
-- apps/nestar-api/src/components/follow/follow.service.ts
-- apps/nestar-api/src/components/like/like.module.ts
-- apps/nestar-api/src/components/like/like.service.ts
-- apps/nestar-api/src/components/member/member.module.ts
-- apps/nestar-api/src/components/member/member.resolver.ts
-- apps/nestar-api/src/components/member/member.service.ts
-- apps/nestar-api/src/components/property/property.module.ts
-- apps/nestar-api/src/components/property/property.resolver.ts
-- apps/nestar-api/src/components/property/property.service.ts
-- apps/nestar-api/src/components/view/view.module.ts
-- apps/nestar-api/src/components/view/view.service.ts
-- apps/nestar-api/src/database/database.module.ts
-- apps/nestar-api/src/libs/config.ts
-- apps/nestar-api/src/libs/dto/board-article/board-article.input.ts
-- apps/nestar-api/src/libs/dto/board-article/board-article.ts
-- apps/nestar-api/src/libs/dto/board-article/board-article.update.ts
-- apps/nestar-api/src/libs/dto/comment/comment.input.ts
-- apps/nestar-api/src/libs/dto/comment/comment.ts
-- apps/nestar-api/src/libs/dto/comment/comment.update.ts
-- apps/nestar-api/src/libs/dto/follow/follow.input.ts
-- apps/nestar-api/src/libs/dto/follow/follow.ts
-- apps/nestar-api/src/libs/dto/like/like.input.ts
-- apps/nestar-api/src/libs/dto/like/like.ts
-- apps/nestar-api/src/libs/dto/member/member.input.ts
-- apps/nestar-api/src/libs/dto/member/member.ts
-- apps/nestar-api/src/libs/dto/member/memberr.update.ts
-- apps/nestar-api/src/libs/dto/property/property.input.ts
-- apps/nestar-api/src/libs/dto/property/property.ts
-- apps/nestar-api/src/libs/dto/property/property.update.ts
-- apps/nestar-api/src/libs/dto/view/view.input.ts
-- apps/nestar-api/src/libs/dto/view/view.ts
-- apps/nestar-api/src/libs/enums/board-article.enum.ts
-- apps/nestar-api/src/libs/enums/comment.enum.ts
-- apps/nestar-api/src/libs/enums/common.enum.ts
-- apps/nestar-api/src/libs/enums/like.enum.ts
-- apps/nestar-api/src/libs/enums/member.enum.ts
-- apps/nestar-api/src/libs/enums/notice.enum.ts
-- apps/nestar-api/src/libs/enums/notification.enum.ts
-- apps/nestar-api/src/libs/enums/property.enum.ts
-- apps/nestar-api/src/libs/enums/view.enum.ts
-- apps/nestar-api/src/libs/interceptor/Logging.intercepter.ts
-- apps/nestar-api/src/libs/types/common.ts
-- apps/nestar-api/src/main.ts
-- apps/nestar-api/src/schemas/BoardArticle.model.ts
-- apps/nestar-api/src/schemas/Comment.model.ts
-- apps/nestar-api/src/schemas/Follow.model.ts
-- apps/nestar-api/src/schemas/Like.model.ts
-- apps/nestar-api/src/schemas/Member.model.ts
-- apps/nestar-api/src/schemas/Notice.model.ts
-- apps/nestar-api/src/schemas/Notification.model.ts
-- apps/nestar-api/src/schemas/Property.model.ts
-- apps/nestar-api/src/schemas/View.model.ts
-- apps/nestar-api/test/app.e2e-spec.ts
-- apps/nestar-api/test/jest-e2e.json
-- apps/nestar-api/tsconfig.app.json
-- apps/nestar-batch/src/main.ts
-- apps/nestar-batch/src/nestar-batch.controller.ts
-- apps/nestar-batch/src/nestar-batch.module.ts
-- apps/nestar-batch/src/nestar-batch.service.ts
-- apps/nestar-batch/test/app.e2e-spec.ts
-- apps/nestar-batch/test/jest-e2e.json
-- apps/nestar-batch/tsconfig.app.json
+- apps/anorcar-api/src/app.controller.ts
+- apps/anorcar-api/src/app.module.ts
+- apps/anorcar-api/src/app.resolver.ts
+- apps/anorcar-api/src/app.service.ts
+- apps/anorcar-api/src/components/auth/auth.module.ts
+- apps/anorcar-api/src/components/auth/auth.service.ts
+- apps/anorcar-api/src/components/auth/decorators/authMember.decorator.ts
+- apps/anorcar-api/src/components/auth/decorators/roles.decorator.ts
+- apps/anorcar-api/src/components/auth/guards/auth.guard.ts
+- apps/anorcar-api/src/components/auth/guards/roles.guard.ts
+- apps/anorcar-api/src/components/auth/guards/without.guard.ts
+- apps/anorcar-api/src/components/board-article/board-article.module.ts
+- apps/anorcar-api/src/components/board-article/board-article.resolver.ts
+- apps/anorcar-api/src/components/board-article/board-article.service.ts
+- apps/anorcar-api/src/components/comment/comment.module.ts
+- apps/anorcar-api/src/components/comment/comment.resolver.ts
+- apps/anorcar-api/src/components/comment/comment.service.ts
+- apps/anorcar-api/src/components/components.module.ts
+- apps/anorcar-api/src/components/follow/follow.module.ts
+- apps/anorcar-api/src/components/follow/follow.resolver.ts
+- apps/anorcar-api/src/components/follow/follow.service.ts
+- apps/anorcar-api/src/components/like/like.module.ts
+- apps/anorcar-api/src/components/like/like.service.ts
+- apps/anorcar-api/src/components/member/member.module.ts
+- apps/anorcar-api/src/components/member/member.resolver.ts
+- apps/anorcar-api/src/components/member/member.service.ts
+- apps/anorcar-api/src/components/property/property.module.ts
+- apps/anorcar-api/src/components/property/property.resolver.ts
+- apps/anorcar-api/src/components/property/property.service.ts
+- apps/anorcar-api/src/components/view/view.module.ts
+- apps/anorcar-api/src/components/view/view.service.ts
+- apps/anorcar-api/src/database/database.module.ts
+- apps/anorcar-api/src/libs/config.ts
+- apps/anorcar-api/src/libs/dto/board-article/board-article.input.ts
+- apps/anorcar-api/src/libs/dto/board-article/board-article.ts
+- apps/anorcar-api/src/libs/dto/board-article/board-article.update.ts
+- apps/anorcar-api/src/libs/dto/comment/comment.input.ts
+- apps/anorcar-api/src/libs/dto/comment/comment.ts
+- apps/anorcar-api/src/libs/dto/comment/comment.update.ts
+- apps/anorcar-api/src/libs/dto/follow/follow.input.ts
+- apps/anorcar-api/src/libs/dto/follow/follow.ts
+- apps/anorcar-api/src/libs/dto/like/like.input.ts
+- apps/anorcar-api/src/libs/dto/like/like.ts
+- apps/anorcar-api/src/libs/dto/member/member.input.ts
+- apps/anorcar-api/src/libs/dto/member/member.ts
+- apps/anorcar-api/src/libs/dto/member/memberr.update.ts
+- apps/anorcar-api/src/libs/dto/property/property.input.ts
+- apps/anorcar-api/src/libs/dto/property/property.ts
+- apps/anorcar-api/src/libs/dto/property/property.update.ts
+- apps/anorcar-api/src/libs/dto/view/view.input.ts
+- apps/anorcar-api/src/libs/dto/view/view.ts
+- apps/anorcar-api/src/libs/enums/board-article.enum.ts
+- apps/anorcar-api/src/libs/enums/comment.enum.ts
+- apps/anorcar-api/src/libs/enums/common.enum.ts
+- apps/anorcar-api/src/libs/enums/like.enum.ts
+- apps/anorcar-api/src/libs/enums/member.enum.ts
+- apps/anorcar-api/src/libs/enums/notice.enum.ts
+- apps/anorcar-api/src/libs/enums/notification.enum.ts
+- apps/anorcar-api/src/libs/enums/property.enum.ts
+- apps/anorcar-api/src/libs/enums/view.enum.ts
+- apps/anorcar-api/src/libs/interceptor/Logging.intercepter.ts
+- apps/anorcar-api/src/libs/types/common.ts
+- apps/anorcar-api/src/main.ts
+- apps/anorcar-api/src/schemas/BoardArticle.model.ts
+- apps/anorcar-api/src/schemas/Comment.model.ts
+- apps/anorcar-api/src/schemas/Follow.model.ts
+- apps/anorcar-api/src/schemas/Like.model.ts
+- apps/anorcar-api/src/schemas/Member.model.ts
+- apps/anorcar-api/src/schemas/Notice.model.ts
+- apps/anorcar-api/src/schemas/Notification.model.ts
+- apps/anorcar-api/src/schemas/Property.model.ts
+- apps/anorcar-api/src/schemas/View.model.ts
+- apps/anorcar-api/test/app.e2e-spec.ts
+- apps/anorcar-api/test/jest-e2e.json
+- apps/anorcar-api/tsconfig.app.json
+- apps/anorcar-batch/src/main.ts
+- apps/anorcar-batch/src/anorcar-batch.controller.ts
+- apps/anorcar-batch/src/anorcar-batch.module.ts
+- apps/anorcar-batch/src/anorcar-batch.service.ts
+- apps/anorcar-batch/test/app.e2e-spec.ts
+- apps/anorcar-batch/test/jest-e2e.json
+- apps/anorcar-batch/tsconfig.app.json
 - eslint.config.mjs
 - nest-cli.json
 - package.json
@@ -201,7 +201,7 @@ uploads
 
 ``````
 
-### FILE: apps/nestar-api/src/app.controller.ts
+### FILE: apps/anorcar-api/src/app.controller.ts
 ``````
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
@@ -218,7 +218,7 @@ export class AppController {
 
 ``````
 
-### FILE: apps/nestar-api/src/app.module.ts
+### FILE: apps/anorcar-api/src/app.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
@@ -266,7 +266,7 @@ export class AppModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/app.resolver.ts
+### FILE: apps/anorcar-api/src/app.resolver.ts
 ``````
 import { Query, Resolver } from '@nestjs/graphql';
 
@@ -280,20 +280,20 @@ export class AppResolver {
 
 ``````
 
-### FILE: apps/nestar-api/src/app.service.ts
+### FILE: apps/anorcar-api/src/app.service.ts
 ``````
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
 	getHello(): string {
-		return 'Welcome to Nestar REST API Server!';
+		return 'Welcome to Anorcar REST API Server!';
 	}
 }
 
 ``````
 
-### FILE: apps/nestar-api/src/components/auth/auth.module.ts
+### FILE: apps/anorcar-api/src/components/auth/auth.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -315,7 +315,7 @@ export class AuthModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/auth/auth.service.ts
+### FILE: apps/anorcar-api/src/components/auth/auth.service.ts
 ``````
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
@@ -357,7 +357,7 @@ export class AuthService {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/auth/decorators/authMember.decorator.ts
+### FILE: apps/anorcar-api/src/components/auth/decorators/authMember.decorator.ts
 ``````
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
@@ -378,7 +378,7 @@ export const AuthMember = createParamDecorator((data: string, context: Execution
 
 ``````
 
-### FILE: apps/nestar-api/src/components/auth/decorators/roles.decorator.ts
+### FILE: apps/anorcar-api/src/components/auth/decorators/roles.decorator.ts
 ``````
 import { SetMetadata } from '@nestjs/common';
 
@@ -386,11 +386,11 @@ export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
 
 ``````
 
-### FILE: apps/nestar-api/src/components/auth/guards/auth.guard.ts
+### FILE: apps/anorcar-api/src/components/auth/guards/auth.guard.ts
 ``````
 import { BadRequestException, CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { Message } from 'apps/nestar-api/src/libs/enums/common.enum';
+import { Message } from 'apps/anorcar-api/src/libs/enums/common.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -423,12 +423,12 @@ export class AuthGuard implements CanActivate {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/auth/guards/roles.guard.ts
+### FILE: apps/anorcar-api/src/components/auth/guards/roles.guard.ts
 ``````
 import { BadRequestException, CanActivate, ExecutionContext, Injectable, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '../auth.service';
-import { Message } from 'apps/nestar-api/src/libs/enums/common.enum';
+import { Message } from 'apps/anorcar-api/src/libs/enums/common.enum';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -467,7 +467,7 @@ export class RolesGuard implements CanActivate {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/auth/guards/without.guard.ts
+### FILE: apps/anorcar-api/src/components/auth/guards/without.guard.ts
 ``````
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
@@ -503,7 +503,7 @@ export class WithoutGuard implements CanActivate {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/board-article/board-article.module.ts
+### FILE: apps/anorcar-api/src/components/board-article/board-article.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { BoardArticleResolver } from './board-article.resolver';
@@ -536,7 +536,7 @@ export class BoardArticleModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/board-article/board-article.resolver.ts
+### FILE: apps/anorcar-api/src/components/board-article/board-article.resolver.ts
 ``````
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { BoardArticleService } from './board-article.service';
@@ -654,7 +654,7 @@ export class BoardArticleResolver {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/board-article/board-article.service.ts
+### FILE: apps/anorcar-api/src/components/board-article/board-article.service.ts
 ``````
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -940,7 +940,7 @@ export class BoardArticleService {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/comment/comment.module.ts
+### FILE: apps/anorcar-api/src/components/comment/comment.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { CommentResolver } from './comment.resolver';
@@ -975,7 +975,7 @@ export class CommentModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/comment/comment.resolver.ts
+### FILE: apps/anorcar-api/src/components/comment/comment.resolver.ts
 ``````
 // comment.resolver.ts
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
@@ -1043,7 +1043,7 @@ export class CommentResolver {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/comment/comment.service.ts
+### FILE: apps/anorcar-api/src/components/comment/comment.service.ts
 ``````
 // comment.service.ts
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
@@ -1160,7 +1160,7 @@ export class CommentService {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/components.module.ts
+### FILE: apps/anorcar-api/src/components/components.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { MemberModule } from './member/member.module';
@@ -1179,7 +1179,7 @@ export class ComponentsModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/follow/follow.module.ts
+### FILE: apps/anorcar-api/src/components/follow/follow.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import FollowSchema from '../../schemas/Follow.model';
@@ -1198,7 +1198,7 @@ export class FollowModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/follow/follow.resolver.ts
+### FILE: apps/anorcar-api/src/components/follow/follow.resolver.ts
 ``````
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { FollowService } from './follow.service';
@@ -1258,7 +1258,7 @@ export class FollowResolver {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/follow/follow.service.ts
+### FILE: apps/anorcar-api/src/components/follow/follow.service.ts
 ``````
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -1398,7 +1398,7 @@ export class FollowService {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/like/like.module.ts
+### FILE: apps/anorcar-api/src/components/like/like.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { LikeService } from './like.service';
@@ -1422,7 +1422,7 @@ export class LikeModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/like/like.service.ts
+### FILE: apps/anorcar-api/src/components/like/like.service.ts
 ``````
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -1518,7 +1518,7 @@ export class LikeService {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/member/member.module.ts
+### FILE: apps/anorcar-api/src/components/member/member.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { MemberResolver } from './member.resolver';
@@ -1545,7 +1545,7 @@ export class MemberModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/member/member.resolver.ts
+### FILE: apps/anorcar-api/src/components/member/member.resolver.ts
 ``````
 import { Mutation, Resolver, Query, Args } from '@nestjs/graphql';
 import { MemberService } from './member.service';
@@ -1763,7 +1763,7 @@ export class MemberResolver {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/member/member.service.ts
+### FILE: apps/anorcar-api/src/components/member/member.service.ts
 ``````
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -1984,7 +1984,7 @@ export class MemberService {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/property/property.module.ts
+### FILE: apps/anorcar-api/src/components/property/property.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { PropertyResolver } from './property.resolver';
@@ -2016,7 +2016,7 @@ export class PropertyModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/property/property.resolver.ts
+### FILE: apps/anorcar-api/src/components/property/property.resolver.ts
 ``````
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { PropertyService } from './property.service';
@@ -2164,7 +2164,7 @@ export class PropertyResolver {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/property/property.service.ts
+### FILE: apps/anorcar-api/src/components/property/property.service.ts
 ``````
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -2474,7 +2474,7 @@ export class PropertyService {
 
 ``````
 
-### FILE: apps/nestar-api/src/components/view/view.module.ts
+### FILE: apps/anorcar-api/src/components/view/view.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { ViewService } from './view.service';
@@ -2498,7 +2498,7 @@ export class ViewModule {}
 
 ``````
 
-### FILE: apps/nestar-api/src/components/view/view.service.ts
+### FILE: apps/anorcar-api/src/components/view/view.service.ts
 ``````
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -2578,7 +2578,7 @@ export class ViewService {
 
 ``````
 
-### FILE: apps/nestar-api/src/database/database.module.ts
+### FILE: apps/anorcar-api/src/database/database.module.ts
 ``````
 import { Module } from '@nestjs/common';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
@@ -2608,7 +2608,7 @@ export class DatabaseModule {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/config.ts
+### FILE: apps/anorcar-api/src/libs/config.ts
 ``````
 import { ObjectId } from 'bson';
 
@@ -2761,7 +2761,7 @@ export const lookupVisit = {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/board-article/board-article.input.ts
+### FILE: apps/anorcar-api/src/libs/dto/board-article/board-article.input.ts
 ``````
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
@@ -2873,7 +2873,7 @@ export class AllBoardArticlesInquiry {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/board-article/board-article.ts
+### FILE: apps/anorcar-api/src/libs/dto/board-article/board-article.ts
 ``````
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { BoardArticleCategory, BoardArticleStatus } from '../../enums/board-article.enum';
@@ -2939,7 +2939,7 @@ export class BoardArticles {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/board-article/board-article.update.ts
+### FILE: apps/anorcar-api/src/libs/dto/board-article/board-article.update.ts
 ``````
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
@@ -2973,7 +2973,7 @@ export class BoardArticleUpdate {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/comment/comment.input.ts
+### FILE: apps/anorcar-api/src/libs/dto/comment/comment.input.ts
 ``````
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
@@ -3035,7 +3035,7 @@ export class CommentsInquiry {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/comment/comment.ts
+### FILE: apps/anorcar-api/src/libs/dto/comment/comment.ts
 ``````
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
@@ -3085,7 +3085,7 @@ export class Comments {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/comment/comment.update.ts
+### FILE: apps/anorcar-api/src/libs/dto/comment/comment.update.ts
 ``````
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
@@ -3110,7 +3110,7 @@ export class CommentUpdate {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/follow/follow.input.ts
+### FILE: apps/anorcar-api/src/libs/dto/follow/follow.input.ts
 ``````
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Min } from 'class-validator';
@@ -3146,7 +3146,7 @@ export class FollowInquiry {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/follow/follow.ts
+### FILE: apps/anorcar-api/src/libs/dto/follow/follow.ts
 ``````
 import { Field, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
@@ -3243,7 +3243,7 @@ export class Followers {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/like/like.input.ts
+### FILE: apps/anorcar-api/src/libs/dto/like/like.input.ts
 ``````
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
@@ -3267,7 +3267,7 @@ export class LikeInput {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/like/like.ts
+### FILE: apps/anorcar-api/src/libs/dto/like/like.ts
 ``````
 import { Field, ObjectType } from '@nestjs/graphql';
 import { LikeGroup } from '../../enums/like.enum';
@@ -3308,7 +3308,7 @@ export class Like {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/member/member.input.ts
+### FILE: apps/anorcar-api/src/libs/dto/member/member.input.ts
 ``````
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
@@ -3429,7 +3429,7 @@ export class MembersInquiry {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/member/member.ts
+### FILE: apps/anorcar-api/src/libs/dto/member/member.ts
 ``````
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
@@ -3541,7 +3541,7 @@ export class Members {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/member/memberr.update.ts
+### FILE: apps/anorcar-api/src/libs/dto/member/memberr.update.ts
 ``````
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Length } from 'class-validator';
@@ -3598,7 +3598,7 @@ export class MemberUpdate {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/property/property.input.ts
+### FILE: apps/anorcar-api/src/libs/dto/property/property.input.ts
 ``````
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsIn, IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
@@ -3853,7 +3853,7 @@ export class OrdinaryInquiry {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/property/property.ts
+### FILE: apps/anorcar-api/src/libs/dto/property/property.ts
 ``````
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
@@ -3956,7 +3956,7 @@ export class Properties {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/property/property.update.ts
+### FILE: apps/anorcar-api/src/libs/dto/property/property.update.ts
 ``````
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
@@ -4039,7 +4039,7 @@ export class PropertyUpdate {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/view/view.input.ts
+### FILE: apps/anorcar-api/src/libs/dto/view/view.input.ts
 ``````
 import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty } from 'class-validator';
@@ -4063,7 +4063,7 @@ export class ViewInput {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/dto/view/view.ts
+### FILE: apps/anorcar-api/src/libs/dto/view/view.ts
 ``````
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
@@ -4093,7 +4093,7 @@ export class View {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/board-article.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/board-article.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4117,7 +4117,7 @@ registerEnumType(BoardArticleStatus, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/comment.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/comment.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4140,7 +4140,7 @@ registerEnumType(CommentGroup, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/common.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/common.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4176,7 +4176,7 @@ registerEnumType(Direction, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/like.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/like.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4191,7 +4191,7 @@ registerEnumType(LikeGroup, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/member.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/member.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4221,7 +4221,7 @@ registerEnumType(MemberAuthType, { name: 'MemberAuthType' });
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/notice.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/notice.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4245,7 +4245,7 @@ registerEnumType(NoticeStatus, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/notification.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/notification.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4276,7 +4276,7 @@ registerEnumType(NotificationGroup, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/property.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/property.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4315,7 +4315,7 @@ registerEnumType(PropertyLocation, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/enums/view.enum.ts
+### FILE: apps/anorcar-api/src/libs/enums/view.enum.ts
 ``````
 import { registerEnumType } from '@nestjs/graphql';
 
@@ -4330,7 +4330,7 @@ registerEnumType(ViewGroup, {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/interceptor/Logging.intercepter.ts
+### FILE: apps/anorcar-api/src/libs/interceptor/Logging.intercepter.ts
 ``````
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
@@ -4374,7 +4374,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
 ``````
 
-### FILE: apps/nestar-api/src/libs/types/common.ts
+### FILE: apps/anorcar-api/src/libs/types/common.ts
 ``````
 import { ObjectId } from 'mongoose';
 
@@ -4390,7 +4390,7 @@ export interface StatisticModifier {
 
 ``````
 
-### FILE: apps/nestar-api/src/main.ts
+### FILE: apps/anorcar-api/src/main.ts
 ``````
 import dns from 'dns';
 dns.setServers(['8.8.8.8', '1.1.1.1']);
@@ -4416,7 +4416,7 @@ bootstrap();
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/BoardArticle.model.ts
+### FILE: apps/anorcar-api/src/schemas/BoardArticle.model.ts
 ``````
 import { Schema } from 'mongoose';
 import { BoardArticleCategory, BoardArticleStatus } from '../libs/enums/board-article.enum';
@@ -4477,7 +4477,7 @@ export default BoardArticleSchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/Comment.model.ts
+### FILE: apps/anorcar-api/src/schemas/Comment.model.ts
 ``````
 import { Schema } from 'mongoose';
 import { CommentGroup, CommentStatus } from '../libs/enums/comment.enum';
@@ -4518,7 +4518,7 @@ export default CommentSchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/Follow.model.ts
+### FILE: apps/anorcar-api/src/schemas/Follow.model.ts
 ``````
 import { Schema } from 'mongoose';
 
@@ -4543,7 +4543,7 @@ export default FollowSchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/Like.model.ts
+### FILE: apps/anorcar-api/src/schemas/Like.model.ts
 ``````
 import { Schema } from 'mongoose';
 import { ViewGroup } from '../libs/enums/view.enum';
@@ -4576,7 +4576,7 @@ export default LikeSchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/Member.model.ts
+### FILE: apps/anorcar-api/src/schemas/Member.model.ts
 ``````
 import { Schema } from 'mongoose';
 import { MemberAuthType, MemberStatus, MemberType } from '../libs/enums/member.enum';
@@ -4697,7 +4697,7 @@ export default MemberSchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/Notice.model.ts
+### FILE: apps/anorcar-api/src/schemas/Notice.model.ts
 ``````
 import mongoose, { Schema } from 'mongoose';
 import { NoticeCategory, NoticeStatus } from '../libs/enums/notice.enum';
@@ -4739,7 +4739,7 @@ export default NoticeSchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/Notification.model.ts
+### FILE: apps/anorcar-api/src/schemas/Notification.model.ts
 ``````
 import { Schema } from 'mongoose';
 import { NotificationGroup, NotificationStatus, NotificationType } from '../libs/enums/notification.enum';
@@ -4802,7 +4802,7 @@ export default NotificationSchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/Property.model.ts
+### FILE: apps/anorcar-api/src/schemas/Property.model.ts
 ``````
 import { Schema } from 'mongoose';
 import { PropertyLocation, PropertyStatus, PropertyType } from '../libs/enums/property.enum';
@@ -4923,7 +4923,7 @@ export default PropertySchema;
 
 ``````
 
-### FILE: apps/nestar-api/src/schemas/View.model.ts
+### FILE: apps/anorcar-api/src/schemas/View.model.ts
 ``````
 import { Schema } from 'mongoose';
 import { ViewGroup } from '../libs/enums/view.enum';
@@ -4956,7 +4956,7 @@ export default ViewSchema;
 
 ``````
 
-### FILE: apps/nestar-api/test/app.e2e-spec.ts
+### FILE: apps/anorcar-api/test/app.e2e-spec.ts
 ``````
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
@@ -4990,7 +4990,7 @@ describe('AppController (e2e)', () => {
 
 ``````
 
-### FILE: apps/nestar-api/test/jest-e2e.json
+### FILE: apps/anorcar-api/test/jest-e2e.json
 ``````
 {
   "moduleFileExtensions": ["js", "json", "ts"],
@@ -5004,13 +5004,13 @@ describe('AppController (e2e)', () => {
 
 ``````
 
-### FILE: apps/nestar-api/tsconfig.app.json
+### FILE: apps/anorcar-api/tsconfig.app.json
 ``````
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/nestar-api"
+    "outDir": "../../dist/apps/anorcar-api"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
@@ -5018,78 +5018,78 @@ describe('AppController (e2e)', () => {
 
 ``````
 
-### FILE: apps/nestar-batch/src/main.ts
+### FILE: apps/anorcar-batch/src/main.ts
 ``````
 import { NestFactory } from '@nestjs/core';
-import { NestarBatchModule } from './nestar-batch.module';
+import { AnorcarBatchModule } from './anorcar-batch.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(NestarBatchModule);
+  const app = await NestFactory.create(AnorcarBatchModule);
   await app.listen(process.env.PORT_BATCH ?? 3000);
 }
 bootstrap();
 
 ``````
 
-### FILE: apps/nestar-batch/src/nestar-batch.controller.ts
+### FILE: apps/anorcar-batch/src/anorcar-batch.controller.ts
 ``````
 import { Controller, Get } from '@nestjs/common';
-import { NestarBatchService } from './nestar-batch.service';
+import { AnorcarBatchService } from './anorcar-batch.service';
 
 @Controller()
-export class NestarBatchController {
-  constructor(private readonly nestarBatchService: NestarBatchService) {}
+export class AnorcarBatchController {
+  constructor(private readonly anorcarBatchService: AnorcarBatchService) {}
 
   @Get()
   getHello(): string {
-    return this.nestarBatchService.getHello();
+    return this.anorcarBatchService.getHello();
   }
 }
 
 ``````
 
-### FILE: apps/nestar-batch/src/nestar-batch.module.ts
+### FILE: apps/anorcar-batch/src/anorcar-batch.module.ts
 ``````
 import { Module } from '@nestjs/common';
-import { NestarBatchController } from './nestar-batch.controller';
-import { NestarBatchService } from './nestar-batch.service';
+import { AnorcarBatchController } from './anorcar-batch.controller';
+import { AnorcarBatchService } from './anorcar-batch.service';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [ConfigModule.forRoot()],
-  controllers: [NestarBatchController],
-  providers: [NestarBatchService],
+  controllers: [AnorcarBatchController],
+  providers: [AnorcarBatchService],
 })
-export class NestarBatchModule {}
+export class AnorcarBatchModule {}
 
 ``````
 
-### FILE: apps/nestar-batch/src/nestar-batch.service.ts
+### FILE: apps/anorcar-batch/src/anorcar-batch.service.ts
 ``````
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class NestarBatchService {
+export class AnorcarBatchService {
   getHello(): string {
-    return 'Welcome to Nestar BATCH Server!';
+    return 'Welcome to Anorcar BATCH Server!';
   }
 }
 
 ``````
 
-### FILE: apps/nestar-batch/test/app.e2e-spec.ts
+### FILE: apps/anorcar-batch/test/app.e2e-spec.ts
 ``````
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { NestarBatchModule } from './../src/nestar-batch.module';
+import { AnorcarBatchModule } from './../src/anorcar-batch.module';
 
-describe('NestarBatchController (e2e)', () => {
+describe('AnorcarBatchController (e2e)', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [NestarBatchModule],
+      imports: [AnorcarBatchModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
@@ -5106,7 +5106,7 @@ describe('NestarBatchController (e2e)', () => {
 
 ``````
 
-### FILE: apps/nestar-batch/test/jest-e2e.json
+### FILE: apps/anorcar-batch/test/jest-e2e.json
 ``````
 {
   "moduleFileExtensions": ["js", "json", "ts"],
@@ -5120,13 +5120,13 @@ describe('NestarBatchController (e2e)', () => {
 
 ``````
 
-### FILE: apps/nestar-batch/tsconfig.app.json
+### FILE: apps/anorcar-batch/tsconfig.app.json
 ``````
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": false,
-    "outDir": "../../dist/apps/nestar-batch"
+    "outDir": "../../dist/apps/anorcar-batch"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
@@ -5179,31 +5179,31 @@ export default tseslint.config(
 {
 	"$schema": "https://json.schemastore.org/nest-cli",
 	"collection": "@nestjs/schematics",
-	"sourceRoot": "apps/nestar-api/src",
+	"sourceRoot": "apps/anorcar-api/src",
 	"compilerOptions": {
 		"deleteOutDir": true,
 		"webpack": true,
-		"tsConfigPath": "apps/nestar-api/tsconfig.app.json"
+		"tsConfigPath": "apps/anorcar-api/tsconfig.app.json"
 	},
 	"monorepo": true,
-	"root": "apps/nestar-api",
+	"root": "apps/anorcar-api",
 	"projects": {
-		"nestar-api": {
+		"anorcar-api": {
 			"type": "application",
-			"root": "apps/nestar-api",
+			"root": "apps/anorcar-api",
 			"entryFile": "main",
-			"sourceRoot": "apps/nestar-api/src",
+			"sourceRoot": "apps/anorcar-api/src",
 			"compilerOptions": {
-				"tsConfigPath": "apps/nestar-api/tsconfig.app.json"
+				"tsConfigPath": "apps/anorcar-api/tsconfig.app.json"
 			}
 		},
-		"nestar-batch": {
+		"anorcar-batch": {
 			"type": "application",
-			"root": "apps/nestar-batch",
+			"root": "apps/anorcar-batch",
 			"entryFile": "main",
-			"sourceRoot": "apps/nestar-batch/src",
+			"sourceRoot": "apps/anorcar-batch/src",
 			"compilerOptions": {
-				"tsConfigPath": "apps/nestar-batch/tsconfig.app.json"
+				"tsConfigPath": "apps/anorcar-batch/tsconfig.app.json"
 			}
 		}
 	}
@@ -5214,7 +5214,7 @@ export default tseslint.config(
 ### FILE: package.json
 ``````
 {
-	"name": "nestar",
+	"name": "anorcar",
 	"version": "0.0.1",
 	"description": "",
 	"author": "",
@@ -5225,16 +5225,16 @@ export default tseslint.config(
 		"format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
 		"start": "nest start",
 		"start:dev": "nest start --watch",
-		"start:dev:batch": "nest start nestars-batch --watch",
+		"start:dev:batch": "nest start anorcars-batch --watch",
 		"start:debug": "nest start --debug --watch",
-		"start:prod": "cross-env NODE_ENV=production node dist/apps/nestar-api/main",
-		"start:prod:batch": "node dist/apps/nestars-batch/main",
+		"start:prod": "cross-env NODE_ENV=production node dist/apps/anorcar-api/main",
+		"start:prod:batch": "node dist/apps/anorcars-batch/main",
 		"lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"test:cov": "jest --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-		"test:e2e": "jest --config ./apps/nestars-api/test/jest-e2e.json"
+		"test:e2e": "jest --config ./apps/anorcars-api/test/jest-e2e.json"
 	},
 	"dependencies": {
 		"@apollo/server": "^4.9.5",

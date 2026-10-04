@@ -1,14 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { NestarBatchModule } from '../src/batch.module';
+import request from 'supertest';
+import { AnorcarBatchModule } from '../src/batch.module';
 
-describe('NestarBatchController (e2e)', () => {
+describe('AnorcarBatchController (e2e)', () => {
 	let app: INestApplication;
 
 	beforeEach(async () => {
 		const moduleFixture: TestingModule = await Test.createTestingModule({
-			imports: [NestarBatchModule],
+			imports: [AnorcarBatchModule],
 		}).compile();
 
 		app = moduleFixture.createNestApplication();

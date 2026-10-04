@@ -4,8 +4,8 @@ import { BatchService } from './batch.service';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
-import PropertySchema from '../../nestar-api/src/schemas/Property.model';
-import MemberSchema from '../../nestar-api/src/schemas/Member.model';
+import PropertySchema from '../../anorcar-api/src/schemas/Property.model';
+import MemberSchema from '../../anorcar-api/src/schemas/Member.model';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
@@ -19,4 +19,4 @@ import { DatabaseModule } from './database/database.module';
 	controllers: [BatchController],
 	providers: [BatchService],
 })
-export class BatchModule {}
+export class AnorcarBatchModule {}
