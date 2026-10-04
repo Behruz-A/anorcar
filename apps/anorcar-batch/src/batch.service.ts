@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Property } from '../../nestar-api/src/libs/dto/property/property';
+import { Property } from '../../anorcar-api/src/libs/dto/property/property';
 import { Model } from 'mongoose';
-import { Member } from '../../nestar-api/src/libs/dto/member/member';
-import { PropertyStatus } from '../../nestar-api/src/libs/enums/property.enum';
-import { MemberStatus, MemberType } from '../../nestar-api/src/libs/enums/member.enum';
+import { Member } from '../../anorcar-api/src/libs/dto/member/member';
+import { PropertyStatus } from '../../anorcar-api/src/libs/enums/property.enum';
+import { MemberStatus, MemberType } from '../../anorcar-api/src/libs/enums/member.enum';
 
 @Injectable()
 export class BatchService {

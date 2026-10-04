@@ -1,31 +1,31 @@
 {
 	"$schema": "https://json.schemastore.org/nest-cli",
 	"collection": "@nestjs/schematics",
-	"sourceRoot": "apps/nestar-api/src",
+	"sourceRoot": "apps/anorcar-api/src",
 	"compilerOptions": {
 		"deleteOutDir": true,
 		"webpack": true,
-		"tsConfigPath": "apps/nestar-api/tsconfig.app.json"
+		"tsConfigPath": "apps/anorcar-api/tsconfig.app.json"
 	},
 	"monorepo": true,
-	"root": "apps/nestar-api",
+	"root": "apps/anorcar-api",
 	"projects": {
-		"nestar-api": {
+		"anorcar-api": {
 			"type": "application",
-			"root": "apps/nestar-api",
+			"root": "apps/anorcar-api",
 			"entryFile": "main",
-			"sourceRoot": "apps/nestar-api/src",
+			"sourceRoot": "apps/anorcar-api/src",
 			"compilerOptions": {
-				"tsConfigPath": "apps/nestar-api/tsconfig.app.json"
+				"tsConfigPath": "apps/anorcar-api/tsconfig.app.json"
 			}
 		},
-		"nestar-batch": {
+		"anorcar-batch": {
 			"type": "application",
-			"root": "apps/nestar-batch",
+			"root": "apps/anorcar-batch",
 			"entryFile": "main",
-			"sourceRoot": "apps/nestar-batch/src",
+			"sourceRoot": "apps/anorcar-batch/src",
 			"compilerOptions": {
-				"tsConfigPath": "apps/nestar-batch/tsconfig.app.json"
+				"tsConfigPath": "apps/anorcar-batch/tsconfig.app.json"
 			}
 		}
 	}
