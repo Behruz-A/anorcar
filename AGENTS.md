@@ -6,10 +6,10 @@ ANORCAR is a NestJS GraphQL monorepo migrated from Real estate platform into a c
 
 Before changing code, read the current AI handoff docs:
 
--`docs/BACKEND_MIGRATION.md`
-\-`docs/COMPLETED_TASKS.md`
-\-`docs/DECISIONS.md`
-\-`docs/NEXT_STEPS.md`
+-`docs/ai/BACKEND_MIGRATION.md`
+\-`docs/ai/COMPLETED_TASKS.md`
+\-`docs/ai/DECISIONS.md`
+\-`docs/ai/NEXT_STEPS.md`
 
 Use those files as the source of truth for AI Agent related migration history, accepted decisions, remaining work and validation status.
 
