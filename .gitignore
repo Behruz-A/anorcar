@@ -17,7 +17,9 @@ lerna-debug.log*
 
 # Tests
 /coverage
+*.launch
 /.nyc_output
+.vscode
 
 # IDEs and editors
 /.idea
