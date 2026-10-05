@@ -4,7 +4,7 @@ import { BatchService } from './batch.service';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
-import PropertySchema from '../../anorcar-api/src/schemas/Property.model';
+import CarSchema from '../../anorcar-api/src/schemas/Car.model';
 import MemberSchema from '../../anorcar-api/src/schemas/Member.model';
 import { DatabaseModule } from './database/database.module';
 
@@ -13,7 +13,7 @@ import { DatabaseModule } from './database/database.module';
 		ConfigModule.forRoot(),
 		DatabaseModule,
 		ScheduleModule.forRoot(),
-		MongooseModule.forFeature([{ name: 'Property', schema: PropertySchema }]),
+		MongooseModule.forFeature([{ name: 'Car', schema: CarSchema }]),
 		MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
 	],
 	controllers: [BatchController],

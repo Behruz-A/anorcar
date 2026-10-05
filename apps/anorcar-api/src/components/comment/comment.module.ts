@@ -2,12 +2,11 @@ import { Module } from '@nestjs/common';
 import { CommentResolver } from './comment.resolver';
 import { CommentService } from './comment.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import PropertySchema from '../../schemas/Property.model';
 import { AuthModule } from '../auth/auth.module';
 import { MemberModule } from '../member/member.module';
 import { ViewModule } from '../view/view.module';
 import CommentSchema from '../../schemas/Comment.model';
-import { PropertyModule } from '../property/property.module';
+import { CarModule } from '../car/car.module';
 import { BoardArticleModule } from '../board-article/board-article.module';
 
 @Module({
@@ -21,7 +20,7 @@ import { BoardArticleModule } from '../board-article/board-article.module';
 		AuthModule,
 		ViewModule,
 		MemberModule,
-		PropertyModule,
+		CarModule,
 		BoardArticleModule,
 	],
 

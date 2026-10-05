@@ -5,10 +5,11 @@ import { Model, ObjectId } from 'mongoose';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { T } from '../../libs/types/common';
 import { Message } from '../../libs/enums/common.enum';
-import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
-import { Properties } from '../../libs/dto/property/property';
+import { OrdinaryInquiry } from '../../libs/dto/car/car.input';
+import { Cars } from '../../libs/dto/car/car';
 import { LikeGroup } from '../../libs/enums/like.enum';
-import { lookupFavorite } from '../../libs/config';
+import { lookupFavorite, lookupFavoriteBrand } from '../../libs/config';
+import { CarStatus } from '../../libs/enums/car.enum';
 @Injectable()
 export class LikeService {
 	constructor(@InjectModel('Like') private readonly likeModel: Model<Like>) {}
@@ -41,10 +42,10 @@ export class LikeService {
 		return result ? [{ memberId: memberId, likeRefId: likeRefId, myFavorite: true }] : [];
 	}
 
-	public async getFavoriteProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+	public async getFavoriteCars(memberId: ObjectId, input: OrdinaryInquiry): Promise<Cars> {
 		const { page, limit } = input;
 
-		const match: T = { likeGroup: LikeGroup.PROPERTY, memberId: memberId };
+		const match: T = { likeGroup: LikeGroup.CAR, memberId: memberId };
 
 		const data: T = await this.likeModel
 			.aggregate([
@@ -53,16 +54,17 @@ export class LikeService {
 
 				{
 					$lookup: {
-						from: 'properties',
+						from: 'cars',
 						localField: 'likeRefId',
 						foreignField: '_id',
-						as: 'favoriteProperty',
+						as: 'favoriteCar',
 					},
 				},
 
 				{
-					$unwind: '$favoriteProperty',
+					$unwind: '$favoriteCar',
 				},
+				{ $match: { 'favoriteCar.carStatus': CarStatus.ACTIVE } },
 
 				{
 					$facet: {
@@ -71,7 +73,9 @@ export class LikeService {
 							{ $limit: limit },
 
 							lookupFavorite,
-							{ $unwind: '$favoriteProperty.memberData' },
+							{ $unwind: '$favoriteCar.memberData' },
+							lookupFavoriteBrand,
+							{ $unwind: '$favoriteCar.brandData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -81,9 +85,9 @@ export class LikeService {
 
 		console.log('data', data);
 
-		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
+		const result: Cars = { list: [], metaCounter: data[0].metaCounter };
 
-		result.list = data[0].list.map((ele) => ele.favoriteProperty);
+		result.list = data[0].list.map((ele) => ele.favoriteCar);
 		console.log('result', result);
 
 		return result;

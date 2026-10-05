@@ -3,14 +3,14 @@ import { ObjectId } from 'bson';
 export const availableAgentSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews', 'memberRank'];
 export const availableMemberSorts = ['createdAt', 'updatedAt', 'memberLikes', 'memberViews'];
 
-export const availableOptions = ['propertyBarter', 'propertyRent'];
-export const availablePropertySorts = [
+export const availableCarOptions = ['carBarter', 'carRent'];
+export const availableCarSorts = [
 	'createdAt',
-	'updatedAt',
-	'propertyLikes',
-	'propertyViews',
-	'propertyRank',
-	'propertyPrice',
+	'carLikes',
+	'carViews',
+	'carRank',
+	'carPrice',
+	'carYear',
 ];
 
 export const availableBoardAritcleSorts = ['createdAt', 'updatedAt', 'articleLikes', 'articleViews'];
@@ -18,16 +18,15 @@ export const availableBoardAritcleSorts = ['createdAt', 'updatedAt', 'articleLik
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
 
 /** IMAGE CONFIGURATION **/
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import * as path from 'path';
 import { T } from './types/common';
-import { from } from 'rxjs';
 
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 
 export const getSerialForImage = (filename: string) => {
 	const ext = path.parse(filename).ext;
-	return uuidv4() + ext;
+	return randomUUID() + ext;
 };
 
 export const shapeIntoMongoObjectId = (target: any) => {
@@ -111,6 +110,15 @@ export const lookupMember = {
 	},
 };
 
+export const lookupBrand = {
+	$lookup: {
+		from: 'brands',
+		localField: 'brandId',
+		foreignField: '_id',
+		as: 'brandData',
+	},
+};
+
 export const lookupFollowingData = {
 	$lookup: {
 		from: 'members',
@@ -132,17 +140,35 @@ export const lookupFollowerData = {
 export const lookupFavorite = {
 	$lookup: {
 		from: 'members',
-		localField: 'favoriteProperty.memberId',
+		localField: 'favoriteCar.memberId',
 		foreignField: '_id',
-		as: 'favoriteProperty.memberData',
+		as: 'favoriteCar.memberData',
+	},
+};
+
+export const lookupFavoriteBrand = {
+	$lookup: {
+		from: 'brands',
+		localField: 'favoriteCar.brandId',
+		foreignField: '_id',
+		as: 'favoriteCar.brandData',
 	},
 };
 
 export const lookupVisit = {
 	$lookup: {
 		from: 'members',
-		localField: 'visitedProperty.memberId',
+		localField: 'visitedCar.memberId',
 		foreignField: '_id',
-		as: 'visitedProperty.memberData',
+		as: 'visitedCar.memberData',
+	},
+};
+
+export const lookupVisitBrand = {
+	$lookup: {
+		from: 'brands',
+		localField: 'visitedCar.brandId',
+		foreignField: '_id',
+		as: 'visitedCar.brandData',
 	},
 };
