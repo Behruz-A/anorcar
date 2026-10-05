@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Property } from '../../anorcar-api/src/libs/dto/property/property';
+import { Car } from '../../anorcar-api/src/libs/dto/car/car';
 import { Model } from 'mongoose';
 import { Member } from '../../anorcar-api/src/libs/dto/member/member';
-import { PropertyStatus } from '../../anorcar-api/src/libs/enums/property.enum';
+import { CarStatus } from '../../anorcar-api/src/libs/enums/car.enum';
 import { MemberStatus, MemberType } from '../../anorcar-api/src/libs/enums/member.enum';
 
 @Injectable()
 export class BatchService {
 	constructor(
-		@InjectModel('Property') private readonly propertyModel: Model<Property>,
+		@InjectModel('Car') private readonly carModel: Model<Car>,
 		@InjectModel('Member') private readonly memberModel: Model<Member>,
 	) {}
 
 	public async batchRollback(): Promise<void> {
-		await this.propertyModel
+		await this.carModel
 			.updateMany(
 				{
-					propertyStatus: PropertyStatus.ACTIVE,
+					carStatus: CarStatus.ACTIVE,
 				},
-				{ propertyRank: 0 },
+				{ carRank: 0 },
 			)
 			.exec();
 
@@ -27,7 +27,7 @@ export class BatchService {
 			.updateMany(
 				{
 					memberStatus: MemberStatus.ACTIVE,
-					MemberType: MemberType.AGENT,
+					memberType: MemberType.AGENT,
 				},
 				{ memberRank: 0 },
 			)
@@ -36,18 +36,18 @@ export class BatchService {
 
 	// recreate uploads
 
-	public async batchTopProperties(): Promise<void> {
-		const properties: Property[] = await this.propertyModel
+	public async batchTopCars(): Promise<void> {
+		const cars: Car[] = await this.carModel
 			.find({
-				propertyStatus: PropertyStatus.ACTIVE,
-				propertyRank: 0,
+				carStatus: CarStatus.ACTIVE,
+				carRank: 0,
 			})
 			.exec();
 
-		const promisedList = properties.map(async (ele: Property) => {
-			const { _id, propertyLikes, propertyViews } = ele;
-			const rank = propertyLikes * 2 + propertyViews * 1;
-			return await this.propertyModel.findOneAndUpdate(_id, { propertyRank: rank });
+		const promisedList = cars.map(async (ele: Car) => {
+			const { _id, carLikes, carViews } = ele;
+			const rank = carLikes * 2 + carViews * 1;
+			return await this.carModel.findOneAndUpdate(_id, { carRank: rank });
 		});
 		await Promise.all(promisedList);
 	}
@@ -62,8 +62,8 @@ export class BatchService {
 			.exec();
 
 		const promisedList = agents.map(async (ele: Member) => {
-			const { _id, memberProperties, memberLikes, memberArticles, memberViews } = ele;
-			const rank = memberProperties * 5 + memberArticles * 3 + memberLikes * 2 + memberViews * 1;
+			const { _id, memberCars, memberLikes, memberArticles, memberViews } = ele;
+			const rank = memberCars * 5 + memberArticles * 3 + memberLikes * 2 + memberViews * 1;
 			return await this.memberModel.findByIdAndUpdate(_id, { memberRank: rank });
 		});
 		await Promise.all(promisedList);

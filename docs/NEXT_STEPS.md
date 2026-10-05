@@ -1,6 +1,6 @@
 # Next Steps
 
-These tasks are ordered for the next working session. Property-to-Car work must not begin until the contract and compatibility decisions are approved.
+These tasks follow the completed Property-to-Car backend conversion.
 
 ## 1. Backend cleanup
 
@@ -8,8 +8,8 @@ These tasks are ordered for the next working session. Property-to-Car work must 
 2. Establish and record a lint baseline; separate automatic formatting from semantic lint corrections.
 3. Add check-only scripts for `typecheck`, `lint:check`, `build:api`, and `build:batch` while retaining explicit fix commands separately.
 4. Fix test scaffolding expectations and isolate application startup from external MongoDB where practical.
-5. Produce and approve the Car-domain contract: fields, enums, indexes, ownership, status lifecycle, filters, sorting, and Dealer role behavior.
-6. Choose the GraphQL and MongoDB compatibility strategy before modifying Property or AGENT identifiers.
+5. Coordinate frontend deployment against the breaking Car/Brand GraphQL contract.
+6. Seed production Brand records before allowing agents to create cars.
 
 ## 2. Frontend migration
 
@@ -17,8 +17,8 @@ These tasks are ordered for the next working session. Property-to-Car work must 
 2. Inventory actual routes, components, GraphQL documents, generated types, Apollo cache policies, environment keys, assets, and NESTAR copy.
 3. Replace the contract-based assumptions in `FRONTEND_MIGRATION.md` with verified paths and owners.
 4. Apply ANORCAR visual and metadata branding without changing Property API calls.
-5. Build an operation-to-consumer matrix for every current Property query and mutation.
-6. After backend approval, add parallel Car documents and migrate browse, detail, forms, account inventory, favorites, and admin pages in that order.
+5. Replace Property documents with the implemented Car/Brand operations.
+6. Migrate browse, detail, forms, account inventory, favorites, and admin pages in that order.
 
 ## 3. Testing
 

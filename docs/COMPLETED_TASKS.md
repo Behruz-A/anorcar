@@ -1,5 +1,15 @@
 # Completed Tasks
 
+## Property-to-Car backend migration
+
+- Replaced the Property GraphQL and Mongoose domain with the breaking Car contract backed by `cars`.
+- Added the Brand schema and public/admin Brand operations backed by `brands`.
+- Added fuel, condition, transmission, location, year, model, color, brand, price, image, lifecycle, and engagement fields and filters.
+- Preserved `MemberType.USER`, `MemberType.AGENT`, and `MemberType.ADMIN`; renamed only the inventory counter to `memberCars`.
+- Migrated likes, views, comments, notifications, favorites, visits, and batch ranking from `PROPERTY` to `CAR`.
+- Added focused Car input/filter, Brand lifecycle, and batch ranking tests.
+- Left the inactive `properties` collection untouched; no data migration or compatibility aliases were added.
+
 ## Branding and workspace refactor
 
 - Renamed `apps/nestar-api` to `apps/anorcar-api`.

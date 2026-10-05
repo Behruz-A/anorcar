@@ -2,7 +2,7 @@
 
 ## Current status
 
-The completed work is a safe branding and workspace rename. The repository is now named ANORCAR, but its business domain remains the original real-estate domain. A Property-to-Car domain migration is proposed work and has not been implemented.
+The branding migration and the breaking Property-to-Car backend migration are complete. ANORCAR now exposes a Car/Brand marketplace contract while preserving the existing member roles and reusable community modules.
 
 | Area | Original state | Current state |
 | --- | --- | --- |
@@ -11,7 +11,7 @@ The completed work is a safe branding and workspace rename. The repository is no
 | Batch application | `apps/nestar-batch` | `apps/anorcar-batch` |
 | Nest project keys | `nestar-api`, `nestar-batch` | `anorcar-api`, `anorcar-batch` |
 | Prompt snapshot | `NESTAR_AI_PROMPT.md` | `ANORCAR_AI_PROMPT.md` |
-| Business domain | Real-estate properties and agents | Unchanged |
+| Business domain | Real-estate properties and agents | Cars and brands; `AGENT` remains the seller role |
 
 ## Original project summary
 
@@ -39,9 +39,9 @@ The following modules remain in service without business-logic changes:
 | Socket | WebSocket connection and messaging behavior |
 | Batch | Property and agent rank recalculation |
 
-## Backend migration goal
+## Backend migration result
 
-The completed goal was to establish ANORCAR project identity without changing public contracts or persisted data. The future goal is to convert the real-estate platform into a car marketplace by replacing Property concepts with Car concepts and Agent concepts with Dealer concepts. That future migration requires an approved data model and coordinated backend/frontend rollout.
+The backend now uses Car terminology throughout GraphQL, Mongoose, engagement integrations, member counters, and batch ranking. The migration intentionally keeps `MemberType.USER | AGENT | ADMIN`; no Dealer member type was introduced.
 
 ## Completed naming changes
 
@@ -53,24 +53,26 @@ The completed goal was to establish ANORCAR project identity without changing pu
 - Renamed and rebranded the retained AI prompt snapshot.
 - Corrected stale e2e application paths and incompatible `supertest` imports needed for type checking.
 
-## GraphQL compatibility
+## GraphQL contract
 
-No GraphQL type, enum, field, query, mutation, argument, or response shape changed. Current property operations include:
+This was a coordinated breaking change with no Property compatibility aliases. Car operations include:
 
-- `createProperty`, `getProperty`, `updateProperty`, and `getProperties`
+- `createCar`, `getCar`, `updateCar`, and `getCars`
 - `getFavorites` and `getVisited`
-- `getAgentProperties` and `likeTargetProperty`
-- `getAllPropertiesByAdmin`, `updatePropertyByAdmin`, and `removePropertyByAdmin`
+- `getAgentCars` and `likeTargetCar`
+- `getAllCarsByAdmin`, `updateCarByAdmin`, and `removeCarByAdmin`
+- public Brand queries plus admin Brand creation, update, listing, and soft deletion
 
-Member, article, comment, follow, upload, and admin operations also remain unchanged. Existing frontend clients should continue using the Property contract until a separately approved Car contract is deployed.
+`getFavorites` and `getVisited` retain their names but return `Cars`. Frontend consumers must use the new breaking contract.
 
-## MongoDB compatibility
+## MongoDB model
 
-No Mongoose schema, model registration name, document field, enum value, index, or collection name changed.
+The active catalog is stored in new `cars` and `brands` collections. No data conversion runs because the approved migration assumes no production Property data; the old `properties` collection is left untouched for manual rollback.
 
 | Model | Collection |
 | --- | --- |
-| Property | `properties` |
+| Car | `cars` |
+| Brand | `brands` |
 | Member | `members` |
 | BoardArticle | `boardArticles` |
 | Comment | `comments` |
@@ -80,13 +82,13 @@ No Mongoose schema, model registration name, document field, enum value, index, 
 | Notice | `notices` |
 | Notification | `notifications` |
 
-`PROPERTY` remains present in comment, like, view, and notification groups. `AGENT` remains a `MemberType`. Property fields such as `propertySquare`, `propertyBeds`, and `propertyRooms` are still active.
+Engagement and notification groups use `CAR`. Members store `memberCars`; `AGENT` remains the ownership role.
 
 ## Deployment and compatibility notes
 
 - Environment keys remain `PORT_API`, `PORT_BATCH`, `MONGO_DEV`, `MONGO_PROD`, and `SECRET_TOKEN`.
 - Deployment commands must use `dist/apps/anorcar-api/main` and `dist/apps/anorcar-batch/main`.
 - Tooling or infrastructure that names the old application directories must be updated even though the runtime API is compatible.
-- Do not rename Property GraphQL operations, Mongo collections, enum values, or member roles until frontend usage and data migration requirements are known.
-- A future breaking migration should use an explicit compatibility window or a coordinated release; it must not be inferred from the completed branding rename.
+- Do not delete the old `properties` collection automatically; rollback remains an explicit operational action.
+- Frontend deployment must be coordinated with this breaking GraphQL contract.
 
