@@ -8,6 +8,8 @@ const CarSchema = new Schema(
 		carCondition: { type: String, enum: CarCondition, required: true },
 		carModel: { type: String, required: true, trim: true },
 		carYear: { type: Number, required: true },
+		// Optional whole-kilometre odometer reading; unknown is not zero.
+		carMileage: { type: Number, min: 0, max: 2147483647, validate: { validator: (value: number | null) => value == null || Number.isInteger(value), message: 'Mileage must be a whole number of kilometres.' } },
 		carLocation: { type: String, enum: CarLocation, required: true },
 		carAddress: { type: String, required: true, trim: true },
 		carTransmission: { type: String, enum: CarTransmission, required: true },

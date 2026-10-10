@@ -14,6 +14,7 @@ export class CarInput {
 	@IsEnum(CarCondition) @Field(() => CarCondition) carCondition!: CarCondition;
 	@IsNotEmpty() @Length(1, 80) @Field(() => String) carModel!: string;
 	@IsInt() @Min(1886) @Max(MAX_CAR_YEAR) @Field(() => Int) carYear!: number;
+	@IsOptional() @IsInt() @Min(0) @Max(2147483647) @Field(() => Int, { nullable: true }) carMileage?: number | null;
 	@IsEnum(CarLocation) @Field(() => CarLocation) carLocation!: CarLocation;
 	@IsNotEmpty() @Length(3, 100) @Field(() => String) carAddress!: string;
 	@IsEnum(CarTransmission) @Field(() => CarTransmission) carTransmission!: CarTransmission;

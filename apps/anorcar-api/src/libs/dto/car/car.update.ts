@@ -12,6 +12,7 @@ export class CarUpdate {
 	@IsOptional() @IsEnum(CarCondition) @Field(() => CarCondition, { nullable: true }) carCondition?: CarCondition;
 	@IsOptional() @Length(1, 80) @Field(() => String, { nullable: true }) carModel?: string;
 	@IsOptional() @IsInt() @Min(1886) @Max(MAX_CAR_YEAR) @Field(() => Int, { nullable: true }) carYear?: number;
+	@IsOptional() @IsInt() @Min(0) @Max(2147483647) @Field(() => Int, { nullable: true }) carMileage?: number | null;
 	@IsOptional() @IsEnum(CarLocation) @Field(() => CarLocation, { nullable: true }) carLocation?: CarLocation;
 	@IsOptional() @Length(3, 100) @Field(() => String, { nullable: true }) carAddress?: string;
 	@IsOptional() @IsEnum(CarTransmission) @Field(() => CarTransmission, { nullable: true }) carTransmission?: CarTransmission;

@@ -92,3 +92,7 @@ Engagement and notification groups use `CAR`. Members store `memberCars`; `AGENT
 - Do not delete the old `properties` collection automatically; rollback remains an explicit operational action.
 - Frontend deployment must be coordinated with this breaking GraphQL contract.
 
+
+## Canonical enum correction - 2026-10-10
+
+CarTransmission now uses AUTOMATIC | MANUAL. CarLocation uses DAEJEON in place of the former DAEJON; all other values remain unchanged. Both apps and development records were migrated together. New API requests must use the corrected values. Historical migration entries retain their original spelling. See DECISIONS.md and sibling anorcar-next/docs/CAR_ENUM_SPELLING.md.

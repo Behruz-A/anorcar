@@ -25,3 +25,7 @@
 - Capture data migration and rollback procedures before modifying `properties`, `PROPERTY`, or `AGENT` values.
 - Keep tooling cleanup in focused commits so formatting changes do not obscure domain changes.
 
+
+## 2026-10-10 - Correct canonical Car enum spellings
+
+User explicitly approved correcting backend, frontend and development storage to CarTransmission.AUTOMATIC and CarLocation.DAEJEON. This supersedes earlier instructions to preserve the misspellings AVTOMATIC/DAEJON. No GraphQL legacy aliases were introduced; old enum inputs are rejected. Frontend bookmark filters normalize the two former spellings before sending queries. Existing roles, other enums, resolver/service/module architecture and field names remain. The existing development data was migrated with a snapshot and guarded updates of only the two enum fields; no timestamps or counters changed.
