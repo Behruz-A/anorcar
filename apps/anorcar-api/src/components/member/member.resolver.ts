@@ -1,4 +1,4 @@
-import { Mutation, Resolver, Query, Args } from '@nestjs/graphql';
+import { Mutation, Resolver, Query, Args, Context } from '@nestjs/graphql';
 import { MemberService } from './member.service';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
 import { Member, Members } from '../../libs/dto/member/member';
@@ -18,21 +18,29 @@ import { Message } from '../../libs/enums/common.enum';
 import { createWriteStream } from 'fs';
 
 import { GraphQLUpload, type FileUpload } from 'graphql-upload';
+import { AuthSessionService } from '../auth/auth-session.service';
+import type { AuthContext } from '../auth/auth.resolver';
 
 @Resolver()
 export class MemberResolver {
-	constructor(private readonly memberService: MemberService) {}
+	constructor(private readonly memberService: MemberService, private readonly authSessionService: AuthSessionService) {}
 
 	@Mutation(() => Member)
-	public async signup(@Args('input') input: MemberInput): Promise<Member> {
+	public async signup(@Args('input') input: MemberInput, @Context() context: AuthContext): Promise<Member> {
 		console.log('Mutation: signup');
-		return await this.memberService.signup(input);
+		this.authSessionService.assertBrowserRequest(context.req);
+		const member = await this.memberService.signup(input);
+		await this.authSessionService.startSession(member, context.req, context.res);
+		return member;
 	}
 
 	@Mutation(() => Member)
-	public async login(@Args('input') input: LoginInput): Promise<Member> {
+	public async login(@Args('input') input: LoginInput, @Context() context: AuthContext): Promise<Member> {
 		console.log('Mutation: login');
-		return await this.memberService.login(input);
+		this.authSessionService.assertBrowserRequest(context.req);
+		const member = await this.memberService.login(input);
+		await this.authSessionService.startSession(member, context.req, context.res);
+		return member;
 	}
 
 	@Roles(MemberType.USER, MemberType.AGENT)

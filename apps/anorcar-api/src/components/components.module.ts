@@ -1,3 +1,4 @@
+import { AiModule } from './ai/ai.module';
 import { Module } from '@nestjs/common';
 import { MemberModule } from './member/member.module';
 import { CarModule } from './car/car.module';
@@ -9,7 +10,9 @@ import { FollowModule } from './follow/follow.module';
 import { BoardArticleModule } from './board-article/board-article.module';
 import { BrandModule } from './brand/brand.module';
 
+import { InquiryModule } from './inquiry/inquiry.module';
+
 @Module({
-	imports: [MemberModule, CarModule, BrandModule, AuthModule, CommentModule, LikeModule, ViewModule, FollowModule, BoardArticleModule],
+	imports: [AiModule, InquiryModule, MemberModule, CarModule, BrandModule, AuthModule, CommentModule, LikeModule, ViewModule, FollowModule, BoardArticleModule],
 })
 export class ComponentsModule {}
