@@ -545,3 +545,55 @@ Replaced existing static tourism Events UI in place with automotive portrait car
 - Server info.totalClients is displayed directly through 30 and as 30+ above 30; accessible label and tooltip retain the full count. Removed fake initial 4 and show a dash until server info arrives.
 - Count represents connections. Backend connection limits, WebSocket protocol and five-message history remain unchanged.
 - Frontend typecheck passed. Isolated browser fixtures cover count boundaries, rapid message reception, responsive layout and existing AI/live interactions without sending real messages. See sibling docs/LIVE_CHAT_UI.md.
+## 2026-10-13 â€” Firebase customer-to-agent frontend integration
+
+- Added browser-only modular Firebase initialization using public Web config and in-memory authentication. Existing Firebase dependency reused; no Admin credentials or token persistence.
+- Added verified GraphQL contracts, JWT-authenticated custom-token exchange, UID/claim checks, fixed-grant renewal before 15-minute expiry, expiry deadline, failure shutdown and serialized sign-out on ANORCAR session changes. Existing login/signup/refresh flow preserved.
+- Private Live Chat mode includes customer agent selection/profile entry, backend-owned conversation creation/retrieval, agent/customer inbox discovery, previews, recent realtime messages, older-page pagination, deduplication, chronological ordering, scroll handling, sender IDs/timestamps, validation, submission locks and connection/error/loading states. EN/KR/RU added.
+- Community WebSocket room/count retained as a separate mode within the same panel. Gemini untouched. No client membership/index edits, message edits/deletions, backend code/data, dependency installation, commit or deployment.
+- Yarn typecheck, authentication regression checks and isolated real-hook chat fixtures passed. Production build passed with 91 pages and lint warnings; a final build after lifecycle refinements is recorded below. Chat fixtures cover successful/failed renewal, UID mismatch, offline sends, inbox/message listeners, history, deduplication, validation and account/session cleanup. Diff check passed.
+- Live GraphQL schema check could not reach localhost:3007. Public Web app config was not supplied. Real Firebase sign-in, two-browser exchange/persistence, deployed-rule checks, responsive visual QA and real Gemini/WebSocket regression verification remain manual acceptance steps. No live account/message/database writes were performed.
+- No missing inbox backend capability: authorized per-user indexes support discovery. Immediate cross-system revocation remains absent; issued grants can survive account status/role changes elsewhere until expiry (up to 15 minutes). Counterpart display uses member IDs; no unsupported unread receipts/presence feature was added.
+- Required config, full file inventory, architecture and manual acceptance checklist: `anorcar-next/docs/FIREBASE_CHAT.md`. Existing handoff location is `anorcar/docs/COMPLETED_TASKS.md` because `docs/ai` is absent.
+
+
+### Firebase frontend final verification
+
+- Final Yarn production build exited 0 (91 pages; lint/Browserslist warnings). Typecheck, auth and real-hook chat fixtures passed; isolated browser AI/community suite passed at 320/390/768/1440px and EN/KR/RU without provider calls or real messages.
+- Correction to the initial handoff: all five required NEXT_PUBLIC_FIREBASE variables are now present/nonempty in ignored frontend .env.local; values were not printed or modified. Live schema validation still could not connect to localhost:3007, including final retry. Real two-account Firebase authentication/messaging and deployed-rule checks remain manual. See sibling anorcar-next/docs/FIREBASE_CHAT.md and FIREBASE_CHAT_COMPLETED.md.
+- Temporary local production server stopped. No backend code/data, commit or deployment changes.
+
+
+## KRW price presentation — 2026-10-13
+
+The user requested replacing USD with Korean won and explicitly chose to preserve numeric values: `$20,000` becomes `₩20,000`. This supersedes earlier USD presentation decisions. No exchange rate, calculation, MongoDB migration or backend changes are involved. Existing stored amounts, filter thresholds, sorting, GraphQL inputs and saved URLs remain unchanged.
+
+`libs/currency.ts` centralizes KRW formatting with the won symbol, separators and zero fractional digits. It normalizes the existing `kr` language key to `ko-KR` and handles missing/nonfinite values as a dash. Zero displays as `₩0`. `libs/carCompare.ts` delegates to this formatter.
+
+Updated homepage cards (popular/top/recent/trending), budget shortcuts and Model Search, Cars grid/list cards and filters, detail prices, shared similar-car cards, My Page cards, add/edit-car price label, admin car price cells and comparison cards/table/picker. EN/KR/RU budget labels and range/input labels now use won/KRW. Budget numeric thresholds remain the same by user instruction.
+
+Updated comparison restoration assertions and the browser browse suite's currency assertion. Existing historical USD reports/demo seed documentation retain their original historical units; this report describes the current display decision.
+
+Validation: Yarn comparison and migration tests passed; phase/final TypeScript and production-build results are recorded below. Search confirms no USD/dollar price labels or formatting remain in active frontend code and translations. No automatic commit/deployment.
+
+Final results: `yarn.cmd typecheck`, `yarn.cmd test:compare`, `yarn.cmd test:migration` and `yarn.cmd build` passed. Production build generated 91 pages, with existing lint/Browserslist warnings. Comparison fixtures verify EN/KR/RU won formatting, zero values and unchanged numeric prices. Browser currency assertion was updated, but the live browser suite was not rerun in this change.
+
+
+## Comparison page redesign - 2026-10-13
+
+Updated `/car/compare` around the user's reference: three selection positions, a compact control bar, price/mileage/year summaries, grouped specifications and seller/detail actions. Preserved Pages Router, Apollo/GraphQL operations, existing layout/navbar/footer, MUI, SCSS, Poppins typography and KRW numeric-price conventions. No new dependencies or backend/schema/data changes.
+
+Visual direction: white surfaces on `#f6f7f9`, `#181a20` text, `#667080` secondary text, `#e3e7ed` borders and `#e94b20` ANORCAR accents. Existing 34px/25px page-heading standards remain. New selectors are limited to the results route; shared cards/table use optional props so the homepage keeps its current behavior.
+
+The existing URL-based selection/load/retry flow remains. Added the existing searchable/paged picker to this route for add/replace, with duplicate and three-car limits. Removal and Clear All update the URL; selection survives refresh and the share button copies that URL. Clipboard failures explain how to copy the address. Inactive/sold/deleted cars are not accepted as valid comparison results.
+
+Summaries derive only from actual price, reported mileage and model-year fields. Unknown mileage is excluded rather than treated as zero; a mileage difference needs at least two reported values. Specifications preserve all twelve existing fields, grouped as vehicle specifications, powertrain, appearance/location and buying options. Difference filtering and highlighting are independent. Groups can be individually expanded or collapsed, with accessible controls and Expand/Collapse all. No horsepower, engine, equipment or ownership-history data was fabricated.
+
+Seller actions use a telephone link when a phone is supplied, otherwise the existing agent-profile route. Full-detail links retain real listing IDs. EN/KR/RU labels follow existing translation patterns. Mobile stacks cards; specification tables remain horizontally scrollable inside their own regions with no page overflow.
+
+Files: `pages/car/compare.tsx`, `libs/components/car/CompareCarCard.tsx`, `CarComparisonTable.tsx`, new `CompareHighlights.tsx`, `scss/pc/homepage/compare.scss`, new `compare-results.scss`, `public/locales/{en,kr,ru}/common.json`, `scripts/check-compare-results.cjs`, new `scripts/qa-compare-page.cjs` and desktop/mobile screenshots.
+
+Verification: phase TypeScript, existing comparison/restoration tests, rendered results checks and production build passed (91 pages, existing lint/Browserslist warnings). Isolated headless Chrome fixtures passed 1440/768/390/320px, two/three/empty selections, price/mileage summary calculations, difference/highlight controls, groups, picker exclusion/add/remove/replace, URL updates, refresh, clipboard share, Clear All and KR/RU localization. No uncaught browser exceptions, real account operations, GraphQL writes or paid calls. Desktop/mobile screenshots were visually inspected: `docs/screenshots/compare-redesign-1440.png` and `compare-redesign-390.png`. Real inventory content remains subject to backend availability.
+
+No automatic commit or deployment.
+
