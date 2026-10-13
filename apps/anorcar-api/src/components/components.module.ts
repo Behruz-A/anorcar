@@ -11,8 +11,9 @@ import { BoardArticleModule } from './board-article/board-article.module';
 import { BrandModule } from './brand/brand.module';
 
 import { InquiryModule } from './inquiry/inquiry.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
-	imports: [AiModule, InquiryModule, MemberModule, CarModule, BrandModule, AuthModule, CommentModule, LikeModule, ViewModule, FollowModule, BoardArticleModule],
+	imports: [ChatModule, AiModule, InquiryModule, MemberModule, CarModule, BrandModule, AuthModule, CommentModule, LikeModule, ViewModule, FollowModule, BoardArticleModule],
 })
 export class ComponentsModule {}

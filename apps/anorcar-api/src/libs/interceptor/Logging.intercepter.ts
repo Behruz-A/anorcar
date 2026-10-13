@@ -19,6 +19,15 @@ export class LoggingInterceptor implements NestInterceptor {
 		} else if (requestType === 'graphql') {
 			/*(1)  Print Request */
 			const gqlContext = GqlExecutionContext.create(context);
+			const fieldName = gqlContext.getInfo().fieldName;
+			if (
+				['createFirebaseChatToken', 'createFirebaseConversation', 'getFirebaseConversation'].includes(fieldName) ||
+				/createFirebaseChatToken|createFirebaseConversation|getFirebaseConversation/.test(
+					gqlContext.getContext().req.body.query ?? '',
+				)
+			) {
+				return next.handle().pipe(tap(() => this.logger.log(`${fieldName} - ${Date.now() - recordTime}ms`, 'Response')));
+			}
             if (gqlContext.getInfo().fieldName === 'askAiAssistant' || gqlContext.getContext().req.body.query?.includes('askAiAssistant')) {
                 return next.handle().pipe(tap(() => this.logger.log(`askAiAssistant - ${Date.now() - recordTime}ms`, 'Response')));
             }

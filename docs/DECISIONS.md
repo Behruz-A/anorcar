@@ -1,5 +1,13 @@
 # Architecture Decisions
 
+## 2026-10-13 - Private Firebase customer-to-agent chat
+
+- Add Firebase as a separate backend chat transport; preserve MongoDB member authority, ANORCAR login/signup, shared WebSocket chat and Gemini assistant.
+- Firebase UID is the authenticated lowercase member ObjectId. Current ACTIVE USER/AGENT checks are required to mint tokens. USER initiates one deterministic thread per active AGENT; ADMIN has no automatic participant access.
+- Trusted backend owns conversation metadata/participants and both indexes. Clients append validated sender-bound messages only. Existing threads use a metadata transaction followed by atomic index fan-out; retry repairs a partially completed creation.
+- Fixed 15-minute chat-grant claims bound Firebase access between backend member checks. Immediate revocation on logout/role/status changes requires a later account-lifecycle integration; frontend renewal and Firebase sign-out are deferred.
+- Rules deployment is manual after review/emulator validation. No frontend work or automatic rule deployment in this phase. Details: FIREBASE_CHAT.md.
+
 ## Decision record
 
 | Decision | Status | Why | Risks | Alternatives considered |

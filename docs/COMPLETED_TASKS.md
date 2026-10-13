@@ -1,5 +1,23 @@
 # Completed Tasks
 
+## 2026-10-13 - Firebase preproduction security review
+
+- Verified millisecond chat grants against Rules now, server timestamp resolution/equality, trusted-backend ownership of participants/indexes, append-only sender-bound messaging, JWT/current-member checks and fixed-grant renewal semantics.
+- Executed official Database Emulator 4.11.2 locally with portable Java 21 in ignored .tmp; no package dependencies or global installation. The original whitespace regex failed emulator compilation (bundled whitespace automaton serialization issue); replaced it with explicit string whitespace removal while preserving message limits, multiline/Unicode acceptance and authorization gates. Firebase documents the original regex syntax as supported; no claim of a live-production compile failure.
+- Expanded emulator coverage to 58 passing tests for authorization, expired/seconds/missing grants, refreshed-token simulation, timestamp resolution, malformed messages, whitespace, sender spoofing, metadata/index tampering, parent PUT/DELETE and root PATCH atomicity. Improved compile-error diagnostics and token unit/lifetime assertions.
+- Final 121 tests / 6 suites passed, zero skipped (rules, Firebase, Chat, auth, AI, Inquiry). API/batch TypeScript checks, npm.cmd run build and whitespace checks passed. Emulator stopped after verification; no production Firebase calls, frontend changes, deployment or commit.
+- Remaining accepted characteristics: fixed 15-minute grant is independent of JWT remaining lifetime; blocking/logout lacks immediate cross-system revocation. Backend has no production message writer yet; future frontend must use Firebase serverTimestamp. Report: docs/FIREBASE_SECURITY_REVIEW.md.
+
+## 2026-10-13 - Firebase Realtime Database backend chat integration
+
+- Added dedicated FirebaseModule/FirebaseService with named singleton Admin initialization and DI; reused the existing firebase-admin dependency. Startup validates all three Firebase environment settings, HTTPS database root URL, readable service account, matching project and signing credentials with sanitized errors.
+- Added separate ChatModule/resolver/service and libs chat DTOs. Existing AuthGuard/AuthMember protect createFirebaseChatToken, createFirebaseConversation and getFirebaseConversation. Firebase UID comes exclusively from the authenticated MongoDB ID; current ACTIVE MongoDB roles/status are checked. USER opens a private conversation with an ACTIVE AGENT; ADMIN has no implicit chat access.
+- Transactional deterministic customer/agent thread metadata and atomic two-user index fan-out preserve existing messages/timestamps and repair indexes on retry. Client messages are append-only with server timestamps. Firebase chat grants expire 15 minutes after issuance and require backend renewal; existing grants are not immediately revoked by MongoDB status changes or ANORCAR logout.
+- Prepared deny-by-default firebase/database.rules.json and opt-in local emulator security tests/config. Participants/indexes are backend-owned; unauthorized reads, sender spoofing, unexpected fields and message edits/deletes are denied. Rules were NOT deployed. Java/Firebase CLI are absent, so nine emulator rules tests are skipped pending manual execution.
+- 63 isolated tests passed across Firebase/chat, auth, AI and Inquiry (26 new backend tests). Both API/batch TypeScript checks and npm.cmd run build passed. Real SDK custom-token signing verified with locally generated fixture credentials; real configured credentials validated locally without Firebase network calls/database writes. Jest's unrelated remote JWKS dependency is mocked for ESM compatibility; real Admin initialization and local signing remain exercised.
+- Corrected only ignored .env FIREBASE_SERVICE_ACCOUNT_PATH to the existing ignored secrets JSON filename; no key contents were displayed or modified. Firebase request/response logging is suppressed, including aliases and mixed operations.
+- Setup, exact API/storage contract, rules test commands, manual Console configuration and session/index limitations: docs/FIREBASE_CHAT.md. Existing MongoDB models/contracts/login/signup, shared WebSocket chat, Gemini, frontend and dependencies remain unchanged. No deployment or Git commit.
+
 ## Recurring frontend blank-page fix — 2026-10-08
 
 - Confirmed dev/build artifact collision in sibling frontend: Cannot find module ./6859.js, page-data 500 and repeated main/react-refresh/_app/index JavaScript 404 responses while root HTML still returned 200.
