@@ -33,8 +33,19 @@ export class CarService {
 		private brandService: BrandService,
 	) {}
 
+	private async resolveInputBrand(input: Pick<CarInput, 'brandId' | 'brandName'>): Promise<void> {
+		if (input.brandName != null) {
+			if (input.brandId) throw new BadRequestException('Provide either brandId or brandName.');
+			const brand = await this.brandService.resolveListingBrand(input.brandName);
+			input.brandId = brand._id;
+			delete input.brandName;
+		} else if (input.brandId) {
+			await this.brandService.getBrand(shapeIntoMongoObjectId(input.brandId));
+		} else throw new BadRequestException('Enter a brand name.');
+	}
+
 	public async createCar(input: CarInput): Promise<Car> {
-		await this.brandService.getBrand(shapeIntoMongoObjectId(input.brandId));
+		await this.resolveInputBrand(input);
 		try {
 			const result = await this.carModel.create(input);
 			// increase memberCaries
@@ -75,13 +86,17 @@ export class CarService {
 	}
 
 	public async updateCar(memberId: ObjectId, input: CarUpdate): Promise<Car> {
-		if (input.brandId) await this.brandService.getBrand(shapeIntoMongoObjectId(input.brandId));
 		const { carStatus } = input;
 		const search: T = {
 			_id: input._id,
 			memberId: memberId,
 			carStatus: CarStatus.ACTIVE,
 		};
+
+		if (input.brandId || input.brandName != null) {
+			if (!(await this.carModel.exists(search))) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+			await this.resolveInputBrand(input);
+		}
 
 		if (carStatus === CarStatus.SOLD) input.soldAt = moment().toDate();
 		else if (carStatus === CarStatus.DELETE) input.deletedAt = moment().toDate();
@@ -273,12 +288,16 @@ export class CarService {
 	}
 
 	public async updateCarByAdmin(input: CarUpdate): Promise<Car> {
-		if (input.brandId) await this.brandService.getBrand(shapeIntoMongoObjectId(input.brandId));
 		const { carStatus } = input;
 		const search: T = {
 			_id: input._id,
 			carStatus: CarStatus.ACTIVE,
 		};
+
+		if (input.brandId || input.brandName != null) {
+			if (!(await this.carModel.exists(search))) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+			await this.resolveInputBrand(input);
+		}
 
 		if (carStatus === CarStatus.SOLD) input.soldAt = moment().toDate();
 		else if (carStatus === CarStatus.DELETE) input.deletedAt = moment().toDate();

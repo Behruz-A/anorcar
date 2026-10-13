@@ -37,3 +37,8 @@
 ## 2026-10-10 - Correct canonical Car enum spellings
 
 User explicitly approved correcting backend, frontend and development storage to CarTransmission.AUTOMATIC and CarLocation.DAEJEON. This supersedes earlier instructions to preserve the misspellings AVTOMATIC/DAEJON. No GraphQL legacy aliases were introduced; old enum inputs are rejected. Frontend bookmark filters normalize the two former spellings before sending queries. Existing roles, other enums, resolver/service/module architecture and field names remain. The existing development data was migrated with a snapshot and guarded updates of only the two enum fields; no timestamps or counters changed.
+
+
+## 2026-10-13 - Free text brand names in listing forms
+
+User authorized arbitrary brand-name entry. CarInput/CarUpdate accept optional brandName:String alongside the legacy brandId input; name and ID together are rejected. Authorized AGENT create/update resolves an existing active catalog brand case-insensitively or upserts a canonical uppercase new brand with a generic logo placeholder. Active ownership is checked before resolving a new brand on agent edits. Deleted brands are not reactivated. Existing MongoDB car.brandId, brandData joins, catalog filters, admin brand CRUD and user roles remain unchanged. No schema collection migration or live test listings/brands were created.

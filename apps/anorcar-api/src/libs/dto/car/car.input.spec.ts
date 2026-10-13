@@ -55,3 +55,19 @@ describe('Car enum spelling', () => {
   expect(errors.map(error => error.property)).toContain('carLocation');
  });
 });
+
+
+describe('Free text listing brand', () => {
+ it('accepts a brand name without a catalog ID', async () => {
+  const input=validInput(); delete input.brandId; input.brandName='BMW';
+  expect(await validate(input)).toHaveLength(0);
+ });
+ it('still requires a name or valid ID', async () => {
+  const input=validInput(); delete input.brandId;
+  expect((await validate(input)).map(error=>error.property)).toContain('brandId');
+ });
+ it.each(['', ' '.repeat(61), 'a'.repeat(61)])('rejects invalid brand names', async brandName => {
+  const input=validInput(); delete input.brandId; input.brandName=brandName;
+  expect((await validate(input)).map(error=>error.property)).toContain('brandName');
+ });
+});

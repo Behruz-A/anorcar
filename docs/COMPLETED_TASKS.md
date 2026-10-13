@@ -1,5 +1,11 @@
 # Completed Tasks
 
+## 2026-10-13 - Compare navbar heading overlap fix
+
+- Fixed only the sibling frontend Compare route navbar selector: include marketplace-nav in its existing route-scoped override so shared fixed/absolute navbar styles cannot override the intended in-flow navbar. This restores breadcrumb/heading clearance without arbitrary page offsets or changes to other routes.
+- Added browser QA assertions for relative navbar positioning and heading bounds below the navbar, including empty selection. Existing Compare browser fixtures passed at 1440/768/390/320px, KR/RU, selection/add/remove/replace/share/reload and empty states. Desktop screenshot visually reviewed; no live GraphQL writes or account/message operations.
+- Frontend Yarn typecheck and git diff --check passed. Existing dirty frontend redesign work was preserved. No backend behavior, dependencies, deployment or Git commit changes.
+
 ## 2026-10-13 - Firebase preproduction security review
 
 - Verified millisecond chat grants against Rules now, server timestamp resolution/equality, trusted-backend ownership of participants/indexes, append-only sender-bound messaging, JWT/current-member checks and fixed-grant renewal semantics.
@@ -596,4 +602,197 @@ Files: `pages/car/compare.tsx`, `libs/components/car/CompareCarCard.tsx`, `CarCo
 Verification: phase TypeScript, existing comparison/restoration tests, rendered results checks and production build passed (91 pages, existing lint/Browserslist warnings). Isolated headless Chrome fixtures passed 1440/768/390/320px, two/three/empty selections, price/mileage summary calculations, difference/highlight controls, groups, picker exclusion/add/remove/replace, URL updates, refresh, clipboard share, Clear All and KR/RU localization. No uncaught browser exceptions, real account operations, GraphQL writes or paid calls. Desktop/mobile screenshots were visually inspected: `docs/screenshots/compare-redesign-1440.png` and `compare-redesign-390.png`. Real inventory content remains subject to backend availability.
 
 No automatic commit or deployment.
+
+
+## In-page comparison seller chat - 2026-10-13
+
+Replaced comparison seller telephone/profile navigation with `Message seller`. Clicking it opens the existing private Firebase Live Chat on the same page for that listing's agent, with the selected car title above the chat. No message is sent automatically. The optional `Show phone number` / `Hide phone number` control displays the advertised number inline without opening a telephone application.
+
+The existing shared support widget is now enabled on `/car/compare`. Its `anorcar:contact-agent` event supports optional bounded, validated listing context. Context is display-only and is never written as conversation membership or sent as an extra message field. Backend-authorized customer/agent conversations, custom-token sign-in/renewal, realtime history and logout cleanup remain unchanged. Guest users see the existing sign-in link; seller messaging is limited to customer accounts, matching backend permissions. Repeated contact requests can select the intended thread again. Listing context is cleared when the ANORCAR account changes and hidden when another thread is selected.
+
+Closing chat returns focus to the seller action that opened it; ordinary AI/live launchers retain their own focus behavior. Shared profile contact events without listing context still work. Gemini and community chat remain separate.
+
+Changed: `pages/car/compare.tsx`, `libs/components/{Chat,FirebaseChat,SupportChat}.tsx`, `scss/support-chat.scss`, `scss/pc/homepage/compare-results.scss`, EN/KR/RU translations and `scripts/qa-compare-page.cjs`.
+
+Phase TypeScript and existing Firebase lifecycle fixtures passed. The browser suite was extended to check same-page chat opening, the correct car title, guest login, inline phone show/hide and unchanged URL. Final build/browser results are recorded below. No actual messages, accounts, backend schema/data changes, commit or deployment.
+
+Final verification: production build passed with 91 pages and existing lint/Browserslist warnings. Isolated browser tests passed at 1440/768/390/320px and KR/RU: seller button opens the chat with the correct listing title and retains the comparison URL, guest sign-in is offered, phone controls show/hide inline, and existing compare selection/toggles/share/refresh behavior passes. Firebase lifecycle fixtures passed. Authenticated live message exchange was not performed in this change.
+
+
+## Homepage seller/video showcase - 2026-10-13
+
+Added the requested three-part reference slice directly after Top Agents and before Recently Added Cars in both homepage device branches. Existing NESTAR-derived Pages Router, component folders, layout wrappers, Apollo/GraphQL, MUI and SCSS remain intact. Existing homepage sections and user-uploaded `caraimg19.png` are preserved.
+
+## Presentation
+
+- `SellerShowcase.tsx` uses the supplied `public/img/carimg20.png` with responsive Next Image sizing, a centered accessible play button and an adjacent seller introduction. Existing Poppins, 34px desktop/25px mobile heading conventions, ANORCAR orange buttons, white surfaces and the reference's softly tinted panel are retained.
+- Copy describes actual listing/photo, buyer-contact and My Page capabilities. No direct ANORCAR purchase offer, guaranteed valuation, financing, roadside assistance, verification status or invented traffic counts are claimed.
+- A four-column metrics row shows live cars for sale, active AGENT accounts, active car brands and the three existing interface languages. The new `GetMarketplaceOverview` document uses existing public queries with page limits of one, fetches metadata/brand IDs only, runs when the section approaches the viewport and uses no-cache to avoid overwriting listing caches. Real zero counts remain zero; failures show dashes and an inline retry.
+- Four "Why choose ANORCAR?" items cover search filters, comparison, KRW prices and direct seller contact. EN/KR/RU translations are included. Mobile stacks image/copy, with two-column metrics/benefits and no page overflow.
+- Guest Get started leads to existing signup with a clear Agent-role instruction. AGENT List your car opens `/mypage?category=addCar`. Existing signed-in non-agent accounts use Find an agent; no role upgrade or backend permission bypass was introduced.
+
+## Video
+
+Connected [Lamborghini Huracán: Driven by Instinct](https://www.youtube.com/watch?v=Cdh5Taq7H6A), from the official Lamborghini channel. YouTube oEmbed verified the title, author and embeddable-video metadata. The section labels it as a third-party Lamborghini film, not an ANORCAR production or listing video.
+
+The `youtube-nocookie.com` iframe mounts only after Play, inside the existing MUI Dialog pattern. Closing/Escape unmounts it and returns focus to Play. An explicit Watch on YouTube link remains available if embedding is unavailable. No video download, new playback dependency or automatic load before a click.
+
+## Files and verification
+
+Created: `libs/components/homepage/SellerShowcase.tsx`, `scss/pc/homepage/seller-showcase.scss`, `scripts/check-seller-showcase.cjs`, `scripts/qa-seller-showcase.cjs` and this report. Modified: `pages/index.tsx`, `apollo/user/query.ts`, `scss/pc/main.scss`, EN/KR/RU `common.json` files. Supplied `carimg20.png` is referenced without edits.
+
+Phase TypeScript and 91-page production build passed, with existing lint/Browserslist warnings. Live schema validation passed 53 frontend operations, three upload documents and registered enums. The actual overview query returned 15 cars, 15 active agents and one active brand at verification time; these values are not hardcoded in the product.
+
+Component fixtures passed supplied-image/placement, role-specific links, real/empty/error count states and no iframe before a play action. Headless Chrome passed 1440/1024/768/390/320px, KR/RU, correct section order, image loading, no horizontal page overflow, video source/fallback, Escape removal and focus restoration. Video transport was deliberately blocked in browser fixtures; actual playback quality remains subject to YouTube/network policies. oEmbed metadata was checked live. No account operations, paid calls, real messages, backend/data changes, commit or deployment.
+
+Previews visually inspected: `docs/screenshots/home-seller-showcase-1440.png` and `home-seller-showcase-390.png`. Preview metrics are isolated test values; production uses the live overview query. Final TypeScript/build after individual icon-import cleanup are recorded below.
+
+Final results: `yarn.cmd typecheck` and `yarn.cmd build` passed after the import cleanup; build generated all 91 pages with existing warnings. The temporary production preview server was stopped; the user's development frontend/backend were left running. No automatic commit/deployment.
+
+
+
+## Homepage promotional refinement - 2026-10-13
+
+# ANORCAR homepage promotional section
+
+## Scope and architecture
+
+Refined the existing `SellerShowcase` between Top Agents and Recently Added Cars in both homepage device branches. Retained Nestar-derived Next Pages Router, React/TypeScript, MUI, scoped SCSS, Apollo, existing GraphQL operations, authentication and EN/KR/RU localization. No new dependencies, routes, schema or database changes. Hero/search, budget, trending, recently added cars, community, navigation, Firebase messaging and AI assistant were not edited. The dedicated comparison page remains separate.
+
+## Presentation and behavior
+
+- The supplied `public/img/carimg21.png` remains a static mountain-road photograph. Removed the unrelated Lamborghini film label, play control, iframe/dialog state and their styles. Next Image uses `fill`, responsive sizes, `object-fit: cover` and `object-position: 50% 75%`. The centered vehicle stays visible. The existing near-viewport observer also changes image loading from lazy to eager when approached, ensuring the image is scheduled at stacked breakpoints without loading it immediately at page startup or adding state. Mobile uses a 1.7 aspect ratio, tablet 1.9.
+- A shared rounded card uses two equal columns and a 500px minimum desktop height; both panels stretch equally, with content-driven expansion for longer translations. The container is capped at 1300px. Existing Poppins typography and restrained #171A20/#F04432/#F7F8FA/white styling preserve visual continuity.
+- Verified listing creation in `AddNewCar` and the existing My Page menu. Authenticated AGENT accounts see SELL WITH ANORCAR, Your Car. Your Next Buyer., three seller benefits and List Your Car linking to `/mypage?category=addCar`. Guests, customers and admins see DISCOVER ANORCAR, Find a Car That Moves You., three buyer benefits and Explore Cars linking to `/car`. Existing permissions are unchanged.
+- Retained the already integrated `GET_MARKETPLACE_OVERVIEW`: existing public car/agent metadata and active brand IDs. No additional requests were added. It still loads near the viewport, with no-cache to avoid partial object cache replacement. Empty results show zero; loading/errors show dashes and an inline retry. Locale count now comes from the existing localization configuration rather than a literal number.
+- Metrics spacing and numeric scale are reduced. Four desktop benefits use consistent MUI icons, brief supported descriptions and a two-column compact mobile layout. Mobile CTA fills the content width. No global responsive styles changed.
+
+## Files
+
+`libs/components/homepage/SellerShowcase.tsx`, `scss/pc/homepage/seller-showcase.scss`, `public/locales/{en,kr,ru}/common.json`, the existing `scripts/check-seller-showcase.cjs` and `scripts/qa-seller-showcase.cjs`, this report and refreshed desktop/mobile screenshots.
+
+## Verification
+
+- `yarn.cmd typecheck`: passed.
+- `yarn.cmd lint`: passed with existing warnings in unrelated files (legacy img/link usage and React hook dependencies).
+- `yarn.cmd node scripts/check-seller-showcase.cjs`: passed, including supplied image, section placement, guest/customer/agent CTA, actual zero counts and error handling.
+- Browser checks passed layout/order/image/CTA targets at 1440/1024/768/390/320px. Desktop panel heights are equal and 480-520px; no horizontal overflow; photo has no play controls; all three benefit statements and four overview items remain.
+- Initial locale browser run saw cached English resources on the existing development server; a fresh production preview verified Korean/Russian text and Explore Cars navigation. Production browser diagnostics exposed a native lazy-image scheduling issue at the tablet breakpoint; the existing observer now starts image loading near the viewport. Final rerun results are recorded below.
+
+Screenshots use isolated test counts (53 cars, 4 agents, 1 brand, 3 languages); product values are fetched from the existing API. Real account creation, listing publication and message sending were not performed. No commit or deployment.
+
+Final verification: typecheck and 91-page production build passed after the image-loading change. Full production browser checks passed at 1440/1024/768/390/320px, including image loading, aligned desktop panels, three short benefits, no page overflow, EN/KR/RU text and actual Explore Cars navigation. Updated desktop/mobile screenshots were visually inspected. Existing lint/Browserslist warnings and the optional sharp recommendation remain. The temporary preview server was stopped after testing; existing development services remain running.
+
+
+
+## Full-width homepage promotional redesign - 2026-10-13
+
+# ANORCAR full-width homepage promotion, statistics and benefits
+
+Inspired by the scale of https://boxcar-nextjs.vercel.app/ while retaining ANORCAR colors, content, permissions and the Nestar-derived architecture.
+
+## Previous constraints and gap
+
+The promotional split was inside `.seller-showcase-container`, capped at 1300px, with 16px rounding and a 500px minimum height. The split now renders outside that container, as a normal 100%-width child of the existing full-width homepage section. No viewport-width hacks or negative margins were added. Statistics and benefits retain a separate 1300px centered wrapper; global homepage containers are unchanged.
+
+The Top Agents showcase imposed `min-height: 816px` plus 132px top/94px bottom padding regardless of actual content. Removed its artificial minimum height and reduced desktop bottom padding to 64px. Existing agent content, carousel, queries and tablet/mobile rules remain. Promotion has no exterior padding, creating a direct dark-to-light transition.
+
+## Layout and supported content
+
+- Desktop promotion: equal 50/50 panels, minimum height clamped between 650px and 750px on large screens, no card rounding. Longer content may expand the row rather than clip. Right panel centers a readable 560px inner column with 64-88px horizontal padding, 44-52px heading, 18px description, 17px benefits and 16px CTA.
+- Keep supplied `public/img/carimg21.png`, natural colors and Next Image optimization. Cover positioning is 50% 75%, keeping the centered vehicle visible. Existing viewport observer schedules image loading near the section. Tablet/mobile stack image above copy with 1.8/1.7 aspect ratios, an 80px mobile play control and full-width mobile CTA.
+- Listing permissions were rechecked in existing `AddNewCar`: signed-in AGENT accounts receive seller copy and `/mypage?category=addCar`; guests/USER/ADMIN receive buyer copy and `/car`. No permissions, user roles or routes changed.
+- Statistics retain the existing Apollo overview query and locale configuration. No new operation or endpoint was added. Live read-only backend verification returned 15 cars, 15 agents and one brand; configured languages are en/kr/ru. Counts are not hardcoded. Existing loading dashes, zero values, error/retry and no-cache behavior remain. Numbers are now 52px, labels 14px, with 72px vertical padding and a subtle divider.
+- Why Choose ANORCAR uses the requested four supported capabilities: finding vehicles, comparison, KRW prices and existing private seller messaging. Heading 44px, MUI icons 52px, titles 21px and descriptions 16px. Tablet uses two columns; mobile uses one readable column.
+- Order remains Top Agents, promotion, statistics, benefits, Recently Added Cars, community. Removed the old large homepage CompareCars render to retain comparison on its existing dedicated `/car/compare` route; its components, state utilities and dedicated page were preserved.
+- Retained Pages Router, React/TypeScript, MUI, SCSS, Apollo, localization and current backend contracts. No new dependencies or backend/schema/data changes. Hero/search, budget, trending, recent listings, agents, auth, navigation, Firebase, community chat and AI assistant logic were not rewritten.
+
+## Video configuration and behavior
+
+`HOME_PROMOTIONAL_VIDEO_URL` in `libs/config.ts` reuses the previously approved https://www.youtube.com/watch?v=Cdh5Taq7H6A. A live YouTube oEmbed check confirmed the title Lamborghini Huracan: Driven by Instinct, author Lamborghini and type video. The UI uses Play video/Automotive video, with no inaccurate manufacturer label on the unrelated photograph.
+
+Optional `NEXT_PUBLIC_HOME_PROMOTIONAL_VIDEO_URL` overrides the default at build time. Empty or unsupported/malformed URLs hide Play. HTTPS YouTube watch/embed and youtu.be URLs are accepted; other hosts and malformed IDs are rejected. Changing a public environment value requires restarting development/rebuilding production; a replacement video must be a real embeddable video.
+
+A 92px white circular button opens the existing MUI Dialog. The youtube-nocookie iframe mounts only while the dialog is open, requests autoplay when permitted, and unmounts immediately on close/Escape to stop playback. Focus returns to Play. A Watch on YouTube fallback remains. Reduced-motion styles disable hover transitions. No video library or automatic iframe loading.
+
+## Files changed in this refinement
+
+- `libs/components/homepage/SellerShowcase.tsx`
+- `scss/pc/homepage/seller-showcase.scss`
+- `scss/pc/homepage/homepage.scss` (Top Agents minimum-height/bottom-padding only)
+- `libs/config.ts` and `.env.example` (video configuration)
+- `pages/index.tsx` (remove homepage comparison render)
+- `public/locales/{en,kr,ru}/common.json`
+- `scripts/check-seller-showcase.cjs`, `scripts/qa-seller-showcase.cjs`
+- This report and `docs/screenshots/home-seller-showcase-{1920,1440,390}.png`
+
+## Validation and limits
+
+- `yarn.cmd typecheck`: passed after component changes and final page-order changes.
+- `yarn.cmd lint`: passed, with pre-existing warnings for legacy img/link usage and hook dependencies in unrelated files.
+- `yarn.cmd build`: passed, all 91 pages generated. Existing Browserslist warnings remain.
+- `yarn.cmd node scripts/check-seller-showcase.cjs`: passed supplied image, role-specific copy/CTA, zero/error counts, delayed iframe, approved URL parsing, invalid URL rejection and hidden play for empty configuration.
+- `yarn.cmd test:compare`: passed selection, restoration/race handling, localization and unchanged-price KRW checks.
+- Production headless Chrome: passed 1920/1440/1024/768/390/320px, including actual Android mobile wrapper, full viewport width, zero section gap, equal desktop panels, 650-750px large-screen height, vehicle image loading, no page overflow, section order, three benefits, correct CTA and real navigation to Cars. Modal embed/fallback, close button, Escape, iframe removal and focus restoration passed. Korean/Russian localization passed.
+- Refreshed desktop/mobile screenshots were visually inspected. Screenshot counts (53 cars/4 agents/1 brand/3 languages) are isolated test fixtures; product uses the live API.
+
+YouTube streaming was blocked in browser fixtures; lifecycle and embed source were tested, and live metadata was verified. Actual video delivery/autoplay remains subject to YouTube/network/browser policies. Existing optional sharp recommendation remains; no new dependency was installed. No accounts, listings or messages were created. No automatic commit or deployment. Temporary production preview is stopped after testing; existing development services remain running.
+
+
+
+## Homepage final image and benefits refinement - 2026-10-13
+
+## Final composition refinement
+
+Source inspected: unchanged PNG, 1756x896 (1.9598:1). At 1920px the previous image panel was about 952.5x729.6; at 1440px about 712x650. These panel ratios (1.31:1 and 1.10:1) force cover to crop the wide source horizontally. Baseline screenshots at 1920/1440/390 showed the complete car; a bottom-clipped car was not reproduced there. The excessive desktop height still removed more landscape, and the previous mobile ratio cropped the original frame. Bottom anchoring now protects the vehicle/road when a wider panel crops vertically. No image editing, replacement, distortion or extra border/overlay.
+
+Desktop minimum height is now content-safe clamp(620px,35vw,680px): shorter and better balanced, with equal grid rows for both panels. Tablet minimum remains 580px; <=800px uses the source image aspect ratio so the whole photo fits. Play is 84px at 42% height on desktop/tablet, 76px at 40% on mobile, well above the vehicle. A white keyboard outline improves contrast against the landscape; reduced motion and existing modal behavior remain.
+
+Benefits now have their own scoped wrapper capped at the established 1416px width (also used by Top Agents/Recently Added Cars), while statistics retain 1300px. The 52px column / 36px row gaps give desktop features room without narrowing their text. Titles have a minimum two-line area on desktop, so descriptions align naturally across one/two-line headings; this resets on tablet/mobile. No manual line breaks, card borders or content changes. Statistics retain 52px numbers/14px labels, with padding refined from 72px to 68px. Benefits use 64px top/72px bottom padding to transition into Recently Added Cars. Global containers and other sections are unchanged.
+
+Changed in this final pass: SellerShowcase.tsx (benefits wrapper only), seller-showcase.scss, qa-seller-showcase.cjs, this report and before/after screenshots. No GraphQL, auth, CTA, modal, translations, backend or dependency changes.
+
+Before screenshots: home-seller-showcase-before-{1920,1440,390}.png. After screenshots: home-seller-showcase-{1920,1440,390}.png. Isolated screenshot figures remain test fixtures, not production counts. Final validation is recorded below.
+
+Final-pass validation: yarn.cmd typecheck, lint, 91-page production build and existing showcase component/configuration tests passed. Browser checks passed at 1920/1440/1280/1024/768/390/375/320px with real Android mobile wrapper, computed source-to-cover vehicle bounds, no vehicle/button overlap, 76-88px play diameter, equal desktop columns, full-width boundaries, 620-680px large-screen height, 4/2/1-column benefits with desktop gap checks, natural mobile photo aspect, no horizontal overflow, modal close/Escape/unmount/focus, localization and CTA navigation. Desktop and mobile after screenshots were visually inspected against saved before images. Exported after previews hide fixed support launchers only during capture to isolate these sections; product launchers and all functional checks are unchanged. Existing lint/Browserslist and optional sharp warnings remain. Streaming was blocked in browser fixtures; video modal lifecycle was tested. No commit, deployment, data writes or new backend requests. Temporary preview stopped; development services remain running.
+
+
+
+## Promotional horizontal and vertical boundary fix - 2026-10-13
+
+## Horizontal and vertical boundary audit
+
+Inspected LayoutHome, navbar rules, #main, .home-page, Top Agents, promotional section/grid/media/copy, margins, padding, overflow and positioning. Measured the running production page at 1920/1024/3440px with 720px viewport height before editing. #main and .home-page have zero margin/padding, full available width and visible overflow. Promotion has zero margin/padding and begins exactly at Top Agents' bottom. Image and copy have identical top/bottom coordinates, with no horizontal panel gap. The navbar is fixed at y=0 with 87px height; it does not reserve additional space inside these sections. Existing Top Agents bottom padding (64px desktop/70px tablet) is deliberate internal spacing, not an external section gap. No navbar/preceding-section offset or margin fix was warranted.
+
+The reproduced top issue is photographic cropping on ultrawide screens. At 3440px viewport (3425px content), media was 1712.5x680. The 1756x896 source scaled to cover that width becomes approximately 1712.5x873.8. Its 100% vertical anchor consequently removes about 193.8 source-rendered pixels from the top, including the mountain peak. At 1920/1024, cover trims horizontally instead; the source car remains centered and visible.
+
+Smallest fix: move the existing source-derived aspect-ratio:1756/896 from the stacked-only breakpoint to the media's base rule, explicitly stretch the grid items, and bind the media width to 100% of its grid column. Grid's automatic row sizing can then grow with the photograph on ultrawide screens, rather than forcing it into a too-short row. The established minimum height and content-driven expansion still apply, and both desktop columns stretch to the same row. Aspect-ratio items use start-like normal alignment in Grid by default; an intermediate test exposed a 31px panel-height mismatch at 2560px, resolved by align-items:stretch. Its automatic inline size could also derive a width from that stretched height and exceed its column; width:100% anchors it to the assigned 50% column. That three-rule combination was verified in an isolated browser before the final build. Object-fit/object-position, global containers, preceding-section spacing, navbar, content, authorization, GraphQL and video logic are unchanged. No new transforms, negative margins, arbitrary offsets, state or dependencies.
+
+Validation is extended to 3440/2560px as well as existing laptop/tablet/mobile widths, with explicit identical panel tops, zero horizontal/external vertical gap and zero vertical image crop. Viewport height is configurable in the QA script for short/tall browser verification. Final measurements/results are recorded below.
+
+Final audit validation: final production CSS (no browser style override) passed all 10 widths 3440/2560/1920/1440/1280/1024/768/390/375/320 at 720px viewport height, then 3440/1920/1024/390 at 1080px height. Tests assert identical panel tops/bottom heights, zero horizontal panel gap, zero external previous-section gap, equal 50% columns, no page overflow, no vertical photo crop, full conservative vehicle bounds, play/car non-overlap, natural stacked image ratio, modal close/Escape/unmount/focus, KR/RU and real Cars CTA navigation. Ultrawide and normal desktop screenshots were visually inspected; the mountain peak and whole car remain visible. Source-based sizing lets the ultrawide row grow to approximately 874px, while 1440/1920 retain 620-680px; no viewport-height clipping is imposed. Final typecheck, component/config tests and 91-page production build passed. Build's existing lint/Browserslist warnings and optional sharp recommendation remain; no new dependency was added. Video streaming was blocked in fixtures, so modal lifecycle/source were tested. The temporary preview server is stopped after testing. No account/data writes, backend/schema changes, commit or deployment.
+
+
+
+## Free text listing brands - 2026-10-13
+
+# Free text brand input
+
+Prepared additive GraphQL support for CarInput/CarUpdate.brandName: String. Existing brandId clients remain supported. The agent form now accepts a required text name (1-60 characters) and edit loads the existing brandData name. It no longer depends on the getBrands catalog request.
+
+Backend files staged in .tmp/brand-name-backend/manifest.json: CarInput and CarUpdate DTOs, BrandService.resolveListingBrand, CarService brand resolution and focused DTO/service tests. No schema collections or persisted car relation is replaced. Names reuse existing brand rows case-insensitively, including literal punctuation. Missing names create canonical uppercase catalog names via upsert with the existing unique brandName index and a generic image placeholder. Deleted brands are not reactivated. Updates check active ownership before creating a brand. Admin/agent resolver guards remain unchanged. Both name and ID are rejected when supplied together.
+
+Backend changes were prepared and typechecked before filesystem approval, then applied to the sibling backend workspace. Existing DTO/resolver/service/module organization, AGENT listing guard, ownership checks and MongoDB relationships are preserved.
+
+
+Validation:
+- Frontend TypeScript passed. New rendered-component/validation checks passed for a normal text input, 60-character limit, no getBrands dependency, enabled Save, USER role restriction, name boundaries and legacy IDs.
+- Existing migration/auth checks passed, and live schema validation passed 53 frontend GraphQL operations plus three upload documents and enums.
+- Backend API and batch TypeScript checks passed; backend production build passed.
+- Two backend Jest suites passed, 38 tests: name-only DTOs, missing/invalid names, existing catalog reuse, canonical upsert, literal regex punctuation, deleted-brand rejection, duplicate-key retry, transient name removal, legacy IDs, ambiguous inputs and ownership before brand creation.
+- Read-only introspection of the running localhost:3007 API confirms brandName:String and nullable legacy brandId:String for both CarInput and CarUpdate. The development backend loaded the change automatically.
+
+No test accounts, cars or brand records were created in the live database. Service persistence scenarios use model mocks; live mutation publication is left to the normal agent form. New brand names are canonical uppercase; existing brand spelling/logo/status is retained. The generic car placeholder is used until an admin supplies a brand logo. Existing frontend build warnings are unrelated. No automatic commit or deployment.
+
+Final results: frontend production build passed (91 pages) with existing warnings. Isolated Chrome passed 1440px and 390px brand typing for BMW/Toyota/Mercedes-Benz/unlisted names, Save enabled independently of catalog availability, zero GetBrands calls from the form and existing Hyundai edit-name hydration. Browser GraphQL responses were fixtures and no mutations were executed. Frontend and backend builds passed. Temporary preview server stopped after verification; existing development services remain running.
 

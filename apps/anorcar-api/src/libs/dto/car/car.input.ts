@@ -1,5 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { ArrayNotEmpty, IsEnum, IsIn, IsInt, IsMongoId, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
+import { ArrayNotEmpty, IsEnum, IsIn, IsInt, IsMongoId, IsNotEmpty, IsOptional, IsString, ValidateIf, Length, Max, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';
 import type { ObjectId } from 'mongoose';
 import { Direction } from '../../enums/common.enum';
@@ -22,7 +23,11 @@ export class CarInput {
 	@Min(1) @Field(() => Number) carPrice!: number;
 	@IsNotEmpty() @Length(1, 40) @Field(() => String) carColor!: string;
 	@ArrayNotEmpty() @Field(() => [String]) carImages!: string[];
-	@IsMongoId() @Field(() => String) brandId!: ObjectId;
+	@ValidateIf((input: CarInput) => input.brandName == null || input.brandId != null)
+	@IsMongoId() @Field(() => String, { nullable: true }) brandId?: ObjectId;
+	@IsOptional() @IsString() @Length(1, 60)
+	@Transform(({ value }: { value: unknown }) => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : value)
+	@Field(() => String, { nullable: true }) brandName?: string;
 	@IsOptional() @Length(5, 500) @Field(() => String, { nullable: true }) carDesc?: string;
 	@IsOptional() @Field(() => Boolean, { nullable: true }) carBarter?: boolean;
 	@IsOptional() @Field(() => Boolean, { nullable: true }) carRent?: boolean;
