@@ -10,7 +10,7 @@ const validInput = (): CarInput => Object.assign(new CarInput(), {
 	carYear: 2022,
 	carLocation: CarLocation.SEOUL,
 	carAddress: 'Gangnam-gu',
-	carTransmission: CarTransmission.AVTOMATIC,
+	carTransmission: CarTransmission.AUTOMATIC,
 	carTitle: 'Clean used Sonata',
 	carPrice: 20000,
 	carColor: 'Black',
@@ -34,11 +34,40 @@ describe('CarInput', () => {
 		expect(await validate(input)).toHaveLength(0);
 	});
 
-	it('rejects AUTOMATIC and empty images', async () => {
+	it('rejects legacy AVTOMATIC and empty images', async () => {
 		const input = validInput();
-		input.carTransmission = 'AUTOMATIC' as CarTransmission;
+		input.carTransmission = 'AVTOMATIC' as CarTransmission;
 		input.carImages = [];
 		const errors = await validate(input);
 		expect(errors.map((error) => error.property)).toEqual(expect.arrayContaining(['carTransmission', 'carImages']));
 	});
+});
+
+// The corrected location values must be valid; old persisted spellings are migrated separately.
+describe('Car enum spelling', () => {
+ it.each(Object.values(CarLocation))('accepts location %s', async (location) => {
+  const input = validInput(); input.carLocation = location;
+  expect(await validate(input)).toHaveLength(0);
+ });
+ it('rejects legacy DAEJON', async () => {
+  const input = validInput(); input.carLocation = 'DAEJON' as CarLocation;
+  const errors = await validate(input);
+  expect(errors.map(error => error.property)).toContain('carLocation');
+ });
+});
+
+
+describe('Free text listing brand', () => {
+ it('accepts a brand name without a catalog ID', async () => {
+  const input=validInput(); delete input.brandId; input.brandName='BMW';
+  expect(await validate(input)).toHaveLength(0);
+ });
+ it('still requires a name or valid ID', async () => {
+  const input=validInput(); delete input.brandId;
+  expect((await validate(input)).map(error=>error.property)).toContain('brandId');
+ });
+ it.each(['', ' '.repeat(61), 'a'.repeat(61)])('rejects invalid brand names', async brandName => {
+  const input=validInput(); delete input.brandId; input.brandName=brandName;
+  expect((await validate(input)).map(error=>error.property)).toContain('brandName');
+ });
 });

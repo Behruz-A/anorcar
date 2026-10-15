@@ -17,7 +17,9 @@ lerna-debug.log*
 
 # Tests
 /coverage
+*.launch
 /.nyc_output
+.vscode
 
 # IDEs and editors
 /.idea
@@ -60,6 +62,7 @@ uploads
 
 
 
+/secrets/
 
-# Gitleaks security reports
-gitleaks-report.json
+/secrets/
+.env

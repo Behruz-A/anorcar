@@ -95,7 +95,11 @@ export class SocketGateway implements OnGatewayInit {
 
 	@SubscribeMessage('message')
 	public async handleMessage(client: WebSocket, payload: string): Promise<void> {
-		const authMember = this.clientsAuthMap.get(client) ?? null;
+		const cachedMember = this.clientsAuthMap.get(client) as (Member & { exp?: number; iat?: number }) | null | undefined;
+		const now = Date.now() / 1000;
+		const expired = cachedMember && ((cachedMember.exp ?? 0) <= now || (cachedMember.iat ?? 0) + 900 <= now);
+		const authMember = expired ? null : cachedMember ?? null;
+		if (expired) this.clientsAuthMap.set(client, null);
 		const newMessage: MessagePayload = { event: 'message', text: payload, memberData: authMember };
 
 		const clientNick: string = authMember?.memberNick ?? 'Guest';

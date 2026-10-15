@@ -13,6 +13,7 @@ export class Car {
 	@Field(() => CarCondition) carCondition!: CarCondition;
 	@Field(() => String) carModel!: string;
 	@Field(() => Int) carYear!: number;
+	@Field(() => Int, { nullable: true }) carMileage?: number | null;
 	@Field(() => CarLocation) carLocation!: CarLocation;
 	@Field(() => String) carAddress!: string;
 	@Field(() => CarTransmission) carTransmission!: CarTransmission;

@@ -9,6 +9,7 @@ import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
 import { SocketModule } from './socket/socket.module';
+import type { Request, Response } from 'express';
 
 @Module({
 	// 2
@@ -17,6 +18,7 @@ import { SocketModule } from './socket/socket.module';
 		GraphQLModule.forRoot({
 			// graphql ni chaqirib olebmiz
 			driver: ApolloDriver,
+			context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
 			playground: true,
 			uploads: false,
 			autoSchemaFile: true,

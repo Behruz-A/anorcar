@@ -1,5 +1,12 @@
 # Next Steps
 
+## Firebase chat manual activation and deferred frontend work — 2026-10-13
+
+1. Preproduction security review completed: 58 local emulator security tests and 121 total tests passed, with API/batch TypeScript checks/build. See FIREBASE_SECURITY_REVIEW.md; repeat the opt-in rules suite when security behavior changes. Portable local tooling is retained in ignored .tmp.
+2. Initialize Firebase Authentication and confirm the locked Realtime Database instance/service-account access. Review and manually publish firebase/database.rules.json; rules have not been deployed.
+3. After separate frontend authorization, integrate Firebase custom-token exchange/15-minute renewal, ANORCAR logout plus Firebase sign-out, customer/agent indexes and private messaging. Keep Gemini separate and preserve existing chat until an approved replacement.
+4. If immediate blocking/logout revocation is required, add explicit MongoDB account-lifecycle/Firebase revocation integration. Current issued chat grants expire within 15 minutes. Avoid broad auth changes in this backend slice.
+
 These tasks follow the completed Property-to-Car backend conversion.
 
 ## 1. Backend cleanup

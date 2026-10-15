@@ -22,6 +22,19 @@ Use those files as the source of truth for AI Agent related migration history, a
 
 ## Domain Rules
 
+## Code Architecture & Clean Code Rules
+
+- Follow the existing **NESTAR architecture, folder structure, coding conventions, and design patterns**.
+- Maintain consistency with the existing ANORCAR codebase.
+- Write clean, readable, maintainable, and reusable code.
+- Follow **SOLID, DRY, KISS**, and separation of concerns.
+- Reuse existing components, utilities, hooks, and services whenever possible.
+- Keep components focused and avoid unnecessary complexity, duplication, and overengineering.
+- Maintain proper TypeScript typing; avoid `any`.
+- Preserve existing functionality and architecture unless explicitly instructed otherwise.
+- Do not modify unrelated files or introduce unnecessary dependencies.
+- Prefer minimal, well-structured changes over large refactoring.
+
 -Use Anorcar/product terminology for the main catalog entity.
 -Do not reitroduce property or real-estate fields
 -Keep 'MemberType.USER', 'MemberType.ADMIN' AND 'MemberType.AGENT' unchanged.
@@ -30,7 +43,7 @@ Use those files as the source of truth for AI Agent related migration history, a
 - Car enum values are:
 - `CarFuelType`: `GASOLINE`, `DIESEL`, `HYBRID`, `ELECTRIC`, `LPG`
 - `CarCondition`: `USED', `NEW`,
-- `CarTransmission`: `AVTOMATIC`, `MANUAL`
+- `CarTransmission`: `AUTOMATIC`, `MANUAL`
 -
 
 ## Workflow
@@ -52,3 +65,8 @@ npx run build
 ```
 
 'npm run lint' runs ESLint with `--fix`, so use it only when file rewriting is acceptable!
+
+## Enum spelling correction — 2026-10-10
+
+- User explicitly approved canonical `CarTransmission.AUTOMATIC` and `CarLocation.DAEJEON` in backend/frontend/storage.
+- Use `AUTOMATIC` and `DAEJEON` for all new API and database values; the earlier misspellings are historical.

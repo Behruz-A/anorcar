@@ -11,6 +11,35 @@ import { Message } from '../../libs/enums/common.enum';
 export class BrandService {
 	constructor(@InjectModel('Brand') private readonly brandModel: Model<Brand>) {}
 
+	// Used only by authorized listing workflows; keep existing admin brand management unchanged.
+	public async resolveListingBrand(value: string): Promise<Brand> {
+		const name = typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '';
+		if (!name || name.length > 60) throw new BadRequestException('Brand must contain 1-60 characters.');
+		const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		const search = { brandName: new RegExp(`^${escaped}$`, 'i') };
+		const existing = await this.brandModel.findOne(search).exec();
+		if (existing) {
+			if (existing.brandStatus !== BrandStatus.ACTIVE) throw new BadRequestException('This brand is unavailable.');
+			return existing;
+		}
+		// A canonical spelling plus the existing unique name index prevents concurrent agent duplicates.
+		try {
+			const brand = await this.brandModel.findOneAndUpdate(
+				{ brandName: name.toUpperCase() },
+				{ $setOnInsert: { brandLogo: '/img/car/placeholder.svg', brandStatus: BrandStatus.ACTIVE } },
+				{ upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+			).exec();
+			if (!brand || brand.brandStatus !== BrandStatus.ACTIVE) throw new BadRequestException('This brand is unavailable.');
+			return brand;
+		} catch (error: unknown) {
+			if ((error as { code?: number })?.code === 11000) {
+				const brand = await this.brandModel.findOne(search).exec();
+				if (brand?.brandStatus === BrandStatus.ACTIVE) return brand;
+			}
+			throw error;
+		}
+	}
+
 	public async createBrand(input: BrandInput): Promise<Brand> {
 		try {
 			return await this.brandModel.create(input);

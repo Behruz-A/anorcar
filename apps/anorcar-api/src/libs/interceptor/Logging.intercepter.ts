@@ -19,6 +19,18 @@ export class LoggingInterceptor implements NestInterceptor {
 		} else if (requestType === 'graphql') {
 			/*(1)  Print Request */
 			const gqlContext = GqlExecutionContext.create(context);
+			const fieldName = gqlContext.getInfo().fieldName;
+			if (
+				['createFirebaseChatToken', 'createFirebaseConversation', 'getFirebaseConversation'].includes(fieldName) ||
+				/createFirebaseChatToken|createFirebaseConversation|getFirebaseConversation/.test(
+					gqlContext.getContext().req.body.query ?? '',
+				)
+			) {
+				return next.handle().pipe(tap(() => this.logger.log(`${fieldName} - ${Date.now() - recordTime}ms`, 'Response')));
+			}
+            if (gqlContext.getInfo().fieldName === 'askAiAssistant' || gqlContext.getContext().req.body.query?.includes('askAiAssistant')) {
+                return next.handle().pipe(tap(() => this.logger.log(`askAiAssistant - ${Date.now() - recordTime}ms`, 'Response')));
+            }
 			console.log('gqlContext =>');
 			this.logger.log(` ${this.stringify(gqlContext.getContext().req.body)}`, 'Request');
 			/*(2)  Errors handling via GaraphQL */
@@ -34,6 +46,6 @@ export class LoggingInterceptor implements NestInterceptor {
 		return next.handle();
 	}
 	private stringify(context: ExecutionContext): string {
-		return JSON.stringify(context).slice(0, 75);
+		return JSON.stringify(context, (key, value) => ['memberPassword', 'accessToken', 'refreshToken', 'authorization', 'cookie'].includes(key) ? '[redacted]' : value).slice(0, 75);
 	}
 }

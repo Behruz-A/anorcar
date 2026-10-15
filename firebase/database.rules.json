@@ -1,0 +1,39 @@
+{
+	"rules": {
+		".read": false,
+		".write": false,
+		"conversations": {
+			"$conversationId": {
+				".read": "auth != null && auth.token.anorcarChat === true && auth.token.chatExpiresAt > now && data.child('participants').child(auth.uid).val() === true"
+			}
+		},
+		"userConversations": {
+			"$uid": {
+				".read": "auth != null && auth.uid === $uid && auth.token.anorcarChat === true && auth.token.chatExpiresAt > now",
+				".indexOn": ["createdAt"]
+			}
+		},
+		"messages": {
+			"$conversationId": {
+				".read": "auth != null && auth.token.anorcarChat === true && auth.token.chatExpiresAt > now && root.child('conversations').child($conversationId).child('participants').child(auth.uid).val() === true",
+				".indexOn": ["createdAt"],
+				"$messageId": {
+					".write": "auth != null && auth.token.anorcarChat === true && auth.token.chatExpiresAt > now && root.child('conversations').child($conversationId).child('participants').child(auth.uid).val() === true && !data.exists() && newData.exists()",
+					".validate": "newData.hasChildren(['senderId', 'text', 'createdAt'])",
+					"senderId": {
+						".validate": "newData.isString() && newData.val() === auth.uid"
+					},
+					"text": {
+						".validate": "newData.isString() && newData.val().length <= 2000 && newData.val().replace(' ', '').replace('\\t', '').replace('\\r', '').replace('\\n', '').replace('\\f', '').replace('\\u000b', '').replace('\\u00a0', '').replace('\\u1680', '').replace('\\u2000', '').replace('\\u2001', '').replace('\\u2002', '').replace('\\u2003', '').replace('\\u2004', '').replace('\\u2005', '').replace('\\u2006', '').replace('\\u2007', '').replace('\\u2008', '').replace('\\u2009', '').replace('\\u200a', '').replace('\\u2028', '').replace('\\u2029', '').replace('\\u202f', '').replace('\\u205f', '').replace('\\u3000', '').replace('\\ufeff', '').length > 0"
+					},
+					"createdAt": {
+						".validate": "newData.isNumber() && newData.val() === now"
+					},
+					"$other": {
+						".validate": false
+					}
+				}
+			}
+		}
+	}
+}

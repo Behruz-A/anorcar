@@ -1,5 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { ArrayNotEmpty, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsOptional, Length, Max, Min } from 'class-validator';
+import { ArrayNotEmpty, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsOptional, IsString, Length, Max, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
 import * as mongoose from 'mongoose';
 import { CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../../enums/car.enum';
 
@@ -12,6 +13,7 @@ export class CarUpdate {
 	@IsOptional() @IsEnum(CarCondition) @Field(() => CarCondition, { nullable: true }) carCondition?: CarCondition;
 	@IsOptional() @Length(1, 80) @Field(() => String, { nullable: true }) carModel?: string;
 	@IsOptional() @IsInt() @Min(1886) @Max(MAX_CAR_YEAR) @Field(() => Int, { nullable: true }) carYear?: number;
+	@IsOptional() @IsInt() @Min(0) @Max(2147483647) @Field(() => Int, { nullable: true }) carMileage?: number | null;
 	@IsOptional() @IsEnum(CarLocation) @Field(() => CarLocation, { nullable: true }) carLocation?: CarLocation;
 	@IsOptional() @Length(3, 100) @Field(() => String, { nullable: true }) carAddress?: string;
 	@IsOptional() @IsEnum(CarTransmission) @Field(() => CarTransmission, { nullable: true }) carTransmission?: CarTransmission;
@@ -20,6 +22,9 @@ export class CarUpdate {
 	@IsOptional() @Length(1, 40) @Field(() => String, { nullable: true }) carColor?: string;
 	@IsOptional() @ArrayNotEmpty() @Field(() => [String], { nullable: true }) carImages?: string[];
 	@IsOptional() @IsMongoId() @Field(() => String, { nullable: true }) brandId?: mongoose.ObjectId;
+	@IsOptional() @IsString() @Length(1, 60)
+	@Transform(({ value }: { value: unknown }) => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : value)
+	@Field(() => String, { nullable: true }) brandName?: string;
 	@IsOptional() @Length(5, 500) @Field(() => String, { nullable: true }) carDesc?: string;
 	@IsOptional() @Field(() => Boolean, { nullable: true }) carBarter?: boolean;
 	@IsOptional() @Field(() => Boolean, { nullable: true }) carRent?: boolean;

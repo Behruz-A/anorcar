@@ -9,11 +9,11 @@ registerEnumType(CarFuelType, { name: 'CarFuelType' });
 export enum CarCondition { USED = 'USED', NEW = 'NEW' }
 registerEnumType(CarCondition, { name: 'CarCondition' });
 
-export enum CarTransmission { AVTOMATIC = 'AVTOMATIC', MANUAL = 'MANUAL' }
+export enum CarTransmission { AUTOMATIC = 'AUTOMATIC', MANUAL = 'MANUAL' }
 registerEnumType(CarTransmission, { name: 'CarTransmission' });
 
 export enum CarLocation {
 	SEOUL = 'SEOUL', BUSAN = 'BUSAN', INCHEON = 'INCHEON', DAEGU = 'DAEGU', GYEONGJU = 'GYEONGJU',
-	GWANGJU = 'GWANGJU', CHONJU = 'CHONJU', DAEJON = 'DAEJON', JEJU = 'JEJU',
+	GWANGJU = 'GWANGJU', CHONJU = 'CHONJU', DAEJEON = 'DAEJEON', JEJU = 'JEJU',
 }
 registerEnumType(CarLocation, { name: 'CarLocation' });
