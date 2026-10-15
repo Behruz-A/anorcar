@@ -137,6 +137,9 @@ export class BoardArticleService {
 		const result = await this.boardArticleModel
 			.aggregate([
 				{ $match: match },
+				// Resolve existing authors before pagination so missing authors cannot consume page slots.
+				lookupMember,
+				{ $unwind: '$memberData' },
 				{ $sort: sort },
 				{
 					$facet: {
@@ -146,9 +149,6 @@ export class BoardArticleService {
 
 							// meLiked
 							lookupAuthMemberLiked(memberId),
-
-							lookupMember,
-							{ $unwind: '$memberData' },
 						],
 
 						metaCounter: [{ $count: 'total' }],
