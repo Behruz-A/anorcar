@@ -57,3 +57,9 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 #IMAGES
 uploads
+
+
+
+
+# Gitleaks security reports
+gitleaks-report.json
