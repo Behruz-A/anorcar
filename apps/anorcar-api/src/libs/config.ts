@@ -172,3 +172,10 @@ export const lookupVisitBrand = {
 		as: 'visitedCar.brandData',
 	},
 };
+
+// Frontend search fields already escape regex punctuation. Normalize that legacy
+// representation once, then build a literal pattern for all public/admin searches.
+export const literalSearchRegex = (text: string): RegExp => {
+	const literal = text.replace(/\\([.*+?^${}()|[\]\\])/g, '$1');
+	return new RegExp(literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+};

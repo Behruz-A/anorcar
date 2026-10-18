@@ -44,7 +44,7 @@ export class FollowService {
 				followerId: followerId,
 			});
 		} catch (err) {
-			console.log('Error, Service.model:', err instanceof Error ? err.message : err);
+
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
@@ -71,12 +71,13 @@ export class FollowService {
 		const { page, limit, search } = input;
 		if (!search?.followerId) throw new InternalServerErrorException(Message.BAD_REQUEST);
 		const match: T = { followerId: search?.followerId };
-		console.log('match:', match);
 
 		const result = await this.followModel
 			.aggregate([
 				{ $match: match },
 				{ $sort: { createdAt: Direction.DESC } },
+				lookupFollowingData,
+				{ $unwind: '$followingData' },
 				{
 					$facet: {
 						list: [
@@ -87,8 +88,6 @@ export class FollowService {
 
 							// meFollowed
 							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$followingId' }),
-							lookupFollowingData,
-							{ $unwind: '$followingData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -105,12 +104,13 @@ export class FollowService {
 		if (!search?.followingId) throw new InternalServerErrorException(Message.BAD_REQUEST);
 
 		const match: T = { followingId: search?.followingId };
-		console.log('match:', match);
 
 		const result = await this.followModel
 			.aggregate([
 				{ $match: match },
 				{ $sort: { createdAt: Direction.DESC } },
+				lookupFollowerData,
+				{ $unwind: '$followerData' },
 				{
 					$facet: {
 						list: [
@@ -120,8 +120,6 @@ export class FollowService {
 							lookupAuthMemberLiked(memberId, '$followerId'),
 							// meFollowed
 							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$followerId' }),
-							lookupFollowerData,
-							{ $unwind: '$followerData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},

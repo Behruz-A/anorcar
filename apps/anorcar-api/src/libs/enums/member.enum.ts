@@ -23,3 +23,19 @@ export enum MemberAuthType {
 }
 
 registerEnumType(MemberAuthType, { name: 'MemberAuthType' });
+
+export enum AgentType {
+	DEALERSHIP = 'DEALERSHIP',
+	INDEPENDENT = 'INDEPENDENT',
+}
+registerEnumType(AgentType, { name: 'AgentType' });
+export enum AgentLanguage {
+	ENGLISH = 'ENGLISH',
+	KOREAN = 'KOREAN',
+	RUSSIAN = 'RUSSIAN',
+	UZBEK = 'UZBEK',
+	CHINESE = 'CHINESE',
+	JAPANESE = 'JAPANESE',
+	ARABIC = 'ARABIC',
+}
+registerEnumType(AgentLanguage, { name: 'AgentLanguage' });

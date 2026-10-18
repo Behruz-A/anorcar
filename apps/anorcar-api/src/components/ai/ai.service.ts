@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 import { createHash } from 'crypto';
@@ -7,6 +7,7 @@ import { AiChatResponse } from '../../libs/dto/ai/ai-chat.response';
 
 @Injectable()
 export class AiService {
+	private readonly logger = new Logger(AiService.name);
 	private readonly settings: ReturnType<typeof aiConfig>;
 	private readonly client: GoogleGenAI | null;
 	private readonly buckets = new Map<string, { count: number; expires: number }>();
@@ -20,6 +21,13 @@ export class AiService {
 			apiKey: this.settings.apiKey,
 			httpOptions: { timeout: this.settings.timeoutMs, retryOptions: { attempts: 1 } },
 		}) : null;
+	}
+
+	private unavailable(reason: 'missing_key' | 'daily_limit' | 'concurrency_limit' | 'timeout' | 'empty_response' | 'provider_failure', status?: number): ServiceUnavailableException {
+		// Only fixed reason codes and a validated numeric status enter server logs.
+		// Never log exception messages/stacks, request text, provider payloads or configuration values.
+		this.logger.warn(`AI_FAILURE reason=${reason}${status === undefined ? '' : ` status=${status}`}`);
+		return new ServiceUnavailableException(AI_UNAVAILABLE);
 	}
 
 	private consume(ip: string, memberId?: string): void {
@@ -42,8 +50,8 @@ export class AiService {
 		});
 		const day = new Date(now).toISOString().slice(0, 10);
 		if (day !== this.day) { this.day = day; this.dailyRequests = 0; }
-		if (this.dailyRequests >= this.settings.dailyLimit || this.active >= this.settings.concurrency)
-			throw new ServiceUnavailableException(AI_UNAVAILABLE);
+		if (this.dailyRequests >= this.settings.dailyLimit) throw this.unavailable('daily_limit');
+		if (this.active >= this.settings.concurrency) throw this.unavailable('concurrency_limit');
 		buckets.forEach((bucket) => bucket.count++);
 		this.dailyRequests++;
 	}
@@ -51,14 +59,15 @@ export class AiService {
 	public async ask(message: string, ip: string, memberId?: string): Promise<AiChatResponse> {
 		if (typeof message !== 'string' || !message.trim() || message.length > 1000)
 			throw new BadRequestException('Enter a message between 1 and 1000 characters.');
-		if (!this.client) throw new ServiceUnavailableException(AI_UNAVAILABLE);
+		if (!this.client) throw this.unavailable('missing_key');
 		this.consume(ip, memberId);
 		this.active++;
 		const controller = new AbortController();
 		let timer: ReturnType<typeof setTimeout> | undefined;
+		let failure: 'provider_failure' | 'timeout' | 'empty_response' = 'provider_failure';
 		try {
 			const timeout = new Promise<never>((_, reject) => {
-				timer = setTimeout(() => { controller.abort(); reject(new Error('AI timeout')); }, this.settings.timeoutMs);
+				timer = setTimeout(() => { failure = 'timeout'; controller.abort(); reject(new Error('AI timeout')); }, this.settings.timeoutMs);
 			});
 			const response = await Promise.race([
 				this.client.models.generateContent({
@@ -75,11 +84,12 @@ export class AiService {
 				}), timeout,
 			]);
 			const answer = response.text?.trim();
-			if (!answer) throw new Error('AI returned no answer');
+			if (!answer) { failure = 'empty_response'; throw new Error('AI returned no answer'); }
 			return { answer: answer.slice(0, 2000) };
-		} catch {
-			// Never expose or log SDK exceptions, messages, keys or provider payloads.
-			throw new ServiceUnavailableException(AI_UNAVAILABLE);
+		} catch (error: unknown) {
+			const candidate = typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined;
+			const status = typeof candidate === 'number' && Number.isInteger(candidate) && candidate >= 400 && candidate <= 599 ? candidate : undefined;
+			throw this.unavailable(failure, status);
 		} finally {
 			clearTimeout(timer);
 			this.active--;

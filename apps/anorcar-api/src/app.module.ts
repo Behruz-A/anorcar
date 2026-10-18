@@ -33,7 +33,6 @@ import type { Request, Response } from 'express';
 					},
 				};
 
-				console.log('GRAPHQL GLOBAL ERROR:', graphQLFormattedError);
 				return graphQLFormattedError;
 			},
 		}),

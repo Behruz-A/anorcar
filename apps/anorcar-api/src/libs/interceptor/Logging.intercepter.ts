@@ -1,51 +1,17 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
-import { stringify } from 'querystring';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-	private readonly logger: Logger = new Logger();
+	private readonly logger = new Logger(LoggingInterceptor.name);
 
-	public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-		// FF conceptsiyasi
-		const recordTime = Date.now();
-		const requestType = context.getType<GqlContextType>();
-
-		if (requestType === 'http') {
-			/*Develop if needed */
-			return next.handle();
-		} else if (requestType === 'graphql') {
-			/*(1)  Print Request */
-			const gqlContext = GqlExecutionContext.create(context);
-			const fieldName = gqlContext.getInfo().fieldName;
-			if (
-				['createFirebaseChatToken', 'createFirebaseConversation', 'getFirebaseConversation'].includes(fieldName) ||
-				/createFirebaseChatToken|createFirebaseConversation|getFirebaseConversation/.test(
-					gqlContext.getContext().req.body.query ?? '',
-				)
-			) {
-				return next.handle().pipe(tap(() => this.logger.log(`${fieldName} - ${Date.now() - recordTime}ms`, 'Response')));
-			}
-            if (gqlContext.getInfo().fieldName === 'askAiAssistant' || gqlContext.getContext().req.body.query?.includes('askAiAssistant')) {
-                return next.handle().pipe(tap(() => this.logger.log(`askAiAssistant - ${Date.now() - recordTime}ms`, 'Response')));
-            }
-			console.log('gqlContext =>');
-			this.logger.log(` ${this.stringify(gqlContext.getContext().req.body)}`, 'Request');
-			/*(2)  Errors handling via GaraphQL */
-
-			/*(3)  No Errors giving Response below */
-			return next.handle().pipe(
-				tap((context) => {
-					const responseTime = Date.now() - recordTime;
-					this.logger.log(`${this.stringify(context)} - ${responseTime}ms \n\n`, 'Response');
-				}),
-			);
-		}
-		return next.handle();
-	}
-	private stringify(context: ExecutionContext): string {
-		return JSON.stringify(context, (key, value) => ['memberPassword', 'accessToken', 'refreshToken', 'authorization', 'cookie'].includes(key) ? '[redacted]' : value).slice(0, 75);
+	public intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+		if (context.getType<GqlContextType>() !== 'graphql') return next.handle();
+		const started = Date.now();
+		const fieldName = GqlExecutionContext.create(context).getInfo().fieldName;
+		// Do not log inputs, returned records, credentials or private messages.
+		return next.handle().pipe(tap(() => this.logger.log(`${fieldName} - ${Date.now() - started}ms`, 'Response')));
 	}
 }

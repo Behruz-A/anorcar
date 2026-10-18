@@ -42,3 +42,15 @@ User explicitly approved correcting backend, frontend and development storage to
 ## 2026-10-13 - Free text brand names in listing forms
 
 User authorized arbitrary brand-name entry. CarInput/CarUpdate accept optional brandName:String alongside the legacy brandId input; name and ID together are rejected. Authorized AGENT create/update resolves an existing active catalog brand case-insensitively or upserts a canonical uppercase new brand with a generic logo placeholder. Active ownership is checked before resolving a new brand on agent edits. Deleted brands are not reactivated. Existing MongoDB car.brandId, brandData joins, catalog filters, admin brand CRUD and user roles remain unchanged. No schema collection migration or live test listings/brands were created.
+
+## 2026-10-15 - Independent optional vehicle body type and segment
+
+Add CarBodyType and CarSegment through existing enum/DTO/schema/service layers. Body shape, fuel, condition and market segment remain independent: Electric/Hybrid reuse CarFuelType; Luxury uses CarSegment. New fields are nullable to preserve legacy listings without inventing classifications. Existing getCars filters combine bodyTypes and segments with other filters. No backfill, role change or new transport. Frontend agent forms can assign these fields; backend must deploy before frontend selections of the new output fields.
+## 2026-10-16 - Admin SOLD car reactivation
+
+User requested reverting accidentally sold listings. Existing admin updateCarByAdmin now permits SOLD -> ACTIVE, clears soldAt/deletedAt and adds one owner memberCars count. ACTIVE -> SOLD/DELETE decrements once; active edits do not change counts. A previous-status condition on the update prevents competing requests from applying the same transition twice. Deleted cars remain non-restorable and permanent removal remains DELETE-only. Existing GraphQL inputs/resolver guards, service architecture and agent-owned update rules are unchanged. No live listing was modified by tests.
+
+
+## Optional agent metadata and directory filtering - 2026-10-17
+
+The reference agent directory requires real type/language filters. Extend the existing Nestar Member schema/DTO/service and profile form with optional agentType (DEALERSHIP/INDEPENDENT) and agentLanguages (ENGLISH/KOREAN/RUSSIAN/UZBEK/CHINESE/JAPANESE/ARABIC); leave legacy metadata absent rather than guessing or migrating records. Existing agent roles and privileges are unchanged. Type filters use any selected type, language filters require all selected languages, location matches literal stored address text, and active-listing ranges are inclusive. Public queries retain ACTIVE AGENT constraints and existing follow/like lookups. New optional query fields require backend deployment before frontend. No new modules, dependencies or component/styling architecture.

@@ -15,7 +15,7 @@ import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
-import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember, shapeIntoMongoObjectId, literalSearchRegex } from '../../libs/config';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
@@ -42,7 +42,7 @@ export class BoardArticleService {
 
 			return result;
 		} catch (err) {
-			console.log('Error, Service.model:', err instanceof Error ? err.message : err);
+
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
@@ -125,14 +125,12 @@ export class BoardArticleService {
 		if (articleCategory) match.articleCategory = articleCategory;
 
 		if (text) {
-			match.articleTitle = { $regex: new RegExp(text, 'i') };
+			match.articleTitle = { $regex: literalSearchRegex(text) };
 		}
 
 		if (input.search?.memberId) {
 			match.memberId = shapeIntoMongoObjectId(input.search.memberId);
 		}
-
-		console.log('match:', match);
 
 		const result = await this.boardArticleModel
 			.aggregate([
@@ -221,13 +219,13 @@ export class BoardArticleService {
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
+				lookupMember,
+				{ $unwind: '$memberData' },
 				{
 					$facet: {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							lookupMember,
-							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},

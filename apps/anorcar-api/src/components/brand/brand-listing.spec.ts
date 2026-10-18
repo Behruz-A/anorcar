@@ -8,7 +8,7 @@ import { Types } from 'mongoose';
 const active={_id:new Types.ObjectId(),brandName:'Hyundai',brandStatus:BrandStatus.ACTIVE};
 const query=(value:unknown)=>({exec:jest.fn().mockResolvedValue(value)});
 const setup=()=>{
- const model={findOne:jest.fn((search: {brandName:RegExp})=>query(null)),findOneAndUpdate:jest.fn((...args:unknown[])=>query(active))};
+ const model={findOne:jest.fn((_search: {brandName:RegExp})=>query(null)),findOneAndUpdate:jest.fn((..._args:unknown[])=>query(active))};
  const service=new BrandService(model as never);
  return {model,service};
 };

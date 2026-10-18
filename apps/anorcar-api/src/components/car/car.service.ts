@@ -16,8 +16,7 @@ import { StatisticModifier, T } from '../../libs/types/common';
 import { ViewService } from '../view/view.service';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { CarUpdate } from '../../libs/dto/car/car.update';
-import moment from 'moment';
-import { lookupAuthMemberLiked, lookupBrand, lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupBrand, lookupMember, shapeIntoMongoObjectId, literalSearchRegex } from '../../libs/config';
 import { LikeService } from '../like/like.service';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -53,7 +52,7 @@ export class CarService {
 
 			return result;
 		} catch (err: any) {
-			console.log('Error, Service.model:', err.message);
+
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
@@ -98,8 +97,8 @@ export class CarService {
 			await this.resolveInputBrand(input);
 		}
 
-		if (carStatus === CarStatus.SOLD) input.soldAt = moment().toDate();
-		else if (carStatus === CarStatus.DELETE) input.deletedAt = moment().toDate();
+		if (carStatus === CarStatus.SOLD) input.soldAt = new Date();
+		else if (carStatus === CarStatus.DELETE) input.deletedAt = new Date();
 
 		const result = await this.carModel
 			.findOneAndUpdate(search, input, {
@@ -124,11 +123,15 @@ export class CarService {
 		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
 
 		this.shapeMatchQuery(match, input);
-		console.log('match:', match);
 
 		const result = await this.carModel
 			.aggregate([
 				{ $match: match },
+				// Resolve displayable cars before counting and paging; orphaned records cannot consume page slots.
+				lookupMember,
+				{ $unwind: '$memberData' },
+				lookupBrand,
+				{ $unwind: '$brandData' },
 				{ $sort: sort },
 				{
 					$facet: {
@@ -136,11 +139,6 @@ export class CarService {
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
 							lookupAuthMemberLiked(memberId),
-							// meLiked
-							lookupMember,
-							{ $unwind: '$memberData' }, // check it
-							lookupBrand,
-							{ $unwind: '$brandData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -158,6 +156,8 @@ export class CarService {
 			brandIds,
 			locations,
 			fuelTypes,
+			bodyTypes,
+			segments,
 			conditions,
 			transmissions,
 			yearsRange,
@@ -170,6 +170,8 @@ export class CarService {
 		if (brandIds?.length) match.brandId = { $in: brandIds.map(shapeIntoMongoObjectId) };
 		if (locations?.length) match.carLocation = { $in: locations };
 		if (fuelTypes?.length) match.carFuelType = { $in: fuelTypes };
+		if (bodyTypes?.length) match.carBodyType = { $in: bodyTypes };
+		if (segments?.length) match.carSegment = { $in: segments };
 		if (conditions?.length) match.carCondition = { $in: conditions };
 		if (transmissions?.length) match.carTransmission = { $in: transmissions };
 
@@ -178,7 +180,7 @@ export class CarService {
 		if (pricesRange) match.carPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 		if (yearsRange) match.carYear = { $gte: yearsRange.start, $lte: yearsRange.end };
 
-		if (text) match['$and'] = [{ $or: [{ carTitle: { $regex: new RegExp(text, 'i') } }, { carModel: { $regex: new RegExp(text, 'i') } }] }];
+		if (text) match['$and'] = [{ $or: [{ carTitle: { $regex: literalSearchRegex(text) } }, { carModel: { $regex: literalSearchRegex(text) } }] }];
 		if (options) {
 			match['$or'] = options.map((ele) => {
 				return { [ele]: true };
@@ -212,15 +214,15 @@ export class CarService {
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
+				lookupMember,
+				{ $unwind: '$memberData' },
+				lookupBrand,
+				{ $unwind: '$brandData' },
 				{
 					$facet: {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							lookupMember,
-							{ $unwind: '$memberData' },
-							lookupBrand,
-							{ $unwind: '$brandData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -267,15 +269,15 @@ export class CarService {
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
+				lookupMember,
+				{ $unwind: '$memberData' },
+				lookupBrand,
+				{ $unwind: '$brandData' },
 				{
 					$facet: {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							lookupMember,
-							{ $unwind: '$memberData' },
-							lookupBrand,
-							{ $unwind: '$brandData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -288,35 +290,38 @@ export class CarService {
 	}
 
 	public async updateCarByAdmin(input: CarUpdate): Promise<Car> {
-		const { carStatus } = input;
-		const search: T = {
+		const current = await this.carModel.findOne({
 			_id: input._id,
-			carStatus: CarStatus.ACTIVE,
-		};
-
-		if (input.brandId || input.brandName != null) {
-			if (!(await this.carModel.exists(search))) throw new InternalServerErrorException(Message.UPDATE_FAILED);
-			await this.resolveInputBrand(input);
+			carStatus: { $in: [CarStatus.ACTIVE, CarStatus.SOLD] },
+		}).exec();
+		if (!current || (current.carStatus === CarStatus.SOLD && input.carStatus !== CarStatus.ACTIVE)) {
+			throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		}
 
-		if (carStatus === CarStatus.SOLD) input.soldAt = moment().toDate();
-		else if (carStatus === CarStatus.DELETE) input.deletedAt = moment().toDate();
+		const search: T = { _id: input._id, carStatus: current.carStatus };
+		if (input.brandId || input.brandName != null) await this.resolveInputBrand(input);
 
-		const result = await this.carModel
-			.findOneAndUpdate(search, input, {
-				new: true,
-			})
-			.exec();
+		const update: T = { ...input };
+		delete update.soldAt;
+		delete update.deletedAt;
+		if (input.carStatus === CarStatus.SOLD) update.soldAt = new Date();
+		else if (input.carStatus === CarStatus.DELETE) update.deletedAt = new Date();
+
+		const restoring = current.carStatus === CarStatus.SOLD && input.carStatus === CarStatus.ACTIVE;
+		const result = await this.carModel.findOneAndUpdate(search, {
+			$set: update,
+			...(restoring ? { $unset: { soldAt: '', deletedAt: '' } } : {}),
+		}, { new: true }).exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
-		if (input.soldAt || input.deletedAt) {
+		const modifier = Number(result.carStatus === CarStatus.ACTIVE) - Number(current.carStatus === CarStatus.ACTIVE);
+		if (modifier) {
 			await this.memberService.memberStatsEditor({
 				_id: result.memberId,
 				targetKey: 'memberCars',
-				modifier: -1,
+				modifier,
 			});
 		}
-
 		return result;
 	}
 

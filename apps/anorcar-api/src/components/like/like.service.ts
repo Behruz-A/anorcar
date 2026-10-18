@@ -21,13 +21,15 @@ export class LikeService {
 		let modifier = 1;
 
 		if (exist) {
-			await this.likeModel.findOneAndDelete(search).exec();
-			modifier = -1;
+			const removed = await this.likeModel.findOneAndDelete(search).exec();
+			modifier = removed ? -1 : 0;
 		} else {
 			try {
 				await this.likeModel.create(input);
 			} catch (err) {
-				console.log('ERROR toggleLike Like servcice', err instanceof Error ? err.message : err);
+				// Another request may have inserted the same unique viewer/target pair.
+				if (typeof err === 'object' && err !== null && 'code' in err && err.code === 11000) return 0;
+
 				throw new BadRequestException(Message.CREATE_FAILED);
 			}
 		}
@@ -66,16 +68,16 @@ export class LikeService {
 				},
 				{ $match: { 'favoriteCar.carStatus': CarStatus.ACTIVE } },
 
+				lookupFavorite,
+				{ $unwind: '$favoriteCar.memberData' },
+				lookupFavoriteBrand,
+				{ $unwind: '$favoriteCar.brandData' },
 				{
 					$facet: {
 						list: [
 							{ $skip: (page - 1) * limit },
 							{ $limit: limit },
 
-							lookupFavorite,
-							{ $unwind: '$favoriteCar.memberData' },
-							lookupFavoriteBrand,
-							{ $unwind: '$favoriteCar.brandData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -83,12 +85,9 @@ export class LikeService {
 			])
 			.exec();
 
-		console.log('data', data);
-
 		const result: Cars = { list: [], metaCounter: data[0].metaCounter };
 
 		result.list = data[0].list.map((ele) => ele.favoriteCar);
-		console.log('result', result);
 
 		return result;
 	}

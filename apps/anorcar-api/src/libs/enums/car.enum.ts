@@ -17,3 +17,13 @@ export enum CarLocation {
 	GWANGJU = 'GWANGJU', CHONJU = 'CHONJU', DAEJEON = 'DAEJEON', JEJU = 'JEJU',
 }
 registerEnumType(CarLocation, { name: 'CarLocation' });
+
+// Body shape and market segment are independent of fuel and condition.
+export enum CarBodyType {
+ SEDAN = 'SEDAN', SUV = 'SUV', HATCHBACK = 'HATCHBACK', TRUCK = 'TRUCK',
+ VAN = 'VAN', CONVERTIBLE = 'CONVERTIBLE', COUPE = 'COUPE', WAGON = 'WAGON', OTHER = 'OTHER',
+}
+registerEnumType(CarBodyType, { name: 'CarBodyType' });
+
+export enum CarSegment { STANDARD = 'STANDARD', LUXURY = 'LUXURY' }
+registerEnumType(CarSegment, { name: 'CarSegment' });

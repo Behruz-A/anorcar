@@ -16,8 +16,14 @@ export class ViewService {
 	public async recordView(input: ViewInput): Promise<View | null> {
 		const viewExist = await this.checkViewExistence(input);
 		if (!viewExist) {
-			console.log('- New View Insert -');
-			return await this.viewModel.create(input);
+
+			try {
+				return await this.viewModel.create(input);
+			} catch (error) {
+				// The existing unique index resolves simultaneous first visits.
+				if (typeof error === 'object' && error !== null && 'code' in error && error.code === 11000) return null;
+				throw error;
+			}
 		} else return null;
 	}
 	private async checkViewExistence(input: ViewInput): Promise<View | null> {
@@ -50,16 +56,16 @@ export class ViewService {
 				},
 				{ $match: { 'visitedCar.carStatus': CarStatus.ACTIVE } },
 
+				lookupVisit,
+				{ $unwind: '$visitedCar.memberData' },
+				lookupVisitBrand,
+				{ $unwind: '$visitedCar.brandData' },
 				{
 					$facet: {
 						list: [
 							{ $skip: (page - 1) * limit },
 							{ $limit: limit },
 
-							lookupVisit,
-							{ $unwind: '$visitedCar.memberData' },
-							lookupVisitBrand,
-							{ $unwind: '$visitedCar.brandData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -67,12 +73,9 @@ export class ViewService {
 			])
 			.exec();
 
-		console.log('data', data);
-
 		const result: Cars = { list: [], metaCounter: data[0].metaCounter };
 
 		result.list = data[0].list.map((ele) => ele.visitedCar);
-		console.log('result', result);
 
 		return result;
 	}

@@ -29,36 +29,41 @@ export class CommentService {
 		try {
 			result = await this.commentModel.create(input);
 		} catch (err) {
-			console.log('Error, Service.model:', err instanceof Error ? err.message : err);
+
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 
-		switch (input.commentGroup) {
+		await this.updateTargetCount(input, 1);
+
+		if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
+		return result;
+	}
+
+	private async updateTargetCount(comment: Pick<Comment, 'commentGroup' | 'commentRefId'>, modifier: number): Promise<void> {
+		switch (comment.commentGroup) {
 			case CommentGroup.CAR:
 				await this.carService.carStatsEditor({
-					_id: input.commentRefId,
+					_id: comment.commentRefId,
 					targetKey: 'carComments',
-					modifier: 1,
+					modifier,
 				});
 				break;
 			case CommentGroup.ARTICLE:
 				await this.boardArticleService.boardArticleStatsEditor({
-					_id: input.commentRefId,
+					_id: comment.commentRefId,
 					targetKey: 'articleComments',
-					modifier: 1,
+					modifier,
 				});
 				break;
 			case CommentGroup.MEMBER:
 				await this.memberService.memberStatsEditor({
-					_id: input.commentRefId,
+					_id: comment.commentRefId,
 					targetKey: 'memberComments',
-					modifier: 1,
+					modifier,
 				});
 				break;
 		}
 
-		if (!result) throw new InternalServerErrorException(Message.CREATE_FAILED);
-		return result;
 	}
 
 	public async updateComment(memberId: ObjectId, input: CommentUpdate): Promise<Comment> {
@@ -77,6 +82,7 @@ export class CommentService {
 			)
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+		if (result.commentStatus === CommentStatus.DELETE) await this.updateTargetCount(result, -1);
 		return result;
 	}
 
@@ -89,14 +95,14 @@ export class CommentService {
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
+				lookupMember,
+				{ $unwind: '$memberData' },
 				{
 					$facet: {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
 							// meLiked
-							lookupMember,
-							{ $unwind: '$memberData' },
 						],
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -111,6 +117,7 @@ export class CommentService {
 	public async removeCommentByAdmin(input: ObjectId): Promise<Comment> {
 		const result = await this.commentModel.findByIdAndDelete(input).exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+		if (result.commentStatus === CommentStatus.ACTIVE) await this.updateTargetCount(result, -1);
 		return result;
 	}
 }

@@ -1,6 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional, Length } from 'class-validator';
-import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
+import { ArrayMaxSize, ArrayUnique, IsArray, IsEnum, IsNotEmpty, IsOptional, Length } from 'class-validator';
+import { AgentType, AgentLanguage, MemberStatus, MemberType } from '../../enums/member.enum';
 import type { ObjectId } from 'mongoose';
 
 @InputType()
@@ -47,6 +47,18 @@ export class MemberUpdate {
 	@IsOptional()
 	@Field(() => String, { nullable: true })
 	memberDesc?: string;
+
+	@IsOptional()
+	@IsEnum(AgentType)
+	@Field(() => AgentType, { nullable: true })
+	agentType?: AgentType | null;
+	@IsOptional()
+	@IsArray()
+	@ArrayUnique()
+	@ArrayMaxSize(7)
+	@IsEnum(AgentLanguage, { each: true })
+	@Field(() => [AgentLanguage], { nullable: true })
+	agentLanguages?: AgentLanguage[] | null;
 
 	deletedAt?: Date;
 }

@@ -1,12 +1,14 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
-import { CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../../enums/car.enum';
+import { CarBodyType, CarSegment, CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../../enums/car.enum';
 import { Member, TotalCounter } from '../member/member';
 import { MeLiked } from '../like/like';
 import { Brand } from '../brand/brand';
 
 @ObjectType()
 export class Car {
+ @Field(() => CarBodyType, { nullable: true }) carBodyType?: CarBodyType | null;
+ @Field(() => CarSegment, { nullable: true }) carSegment?: CarSegment | null;
 	@Field(() => String) _id!: ObjectId;
 	@Field(() => CarStatus) carStatus!: CarStatus;
 	@Field(() => CarFuelType) carFuelType!: CarFuelType;

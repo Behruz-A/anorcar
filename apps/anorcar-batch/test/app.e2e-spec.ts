@@ -1,21 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import { AnorcarBatchModule } from '../src/batch.module';
+import { BatchController } from '../src/batch.controller';
+import { BatchService } from '../src/batch.service';
 
-describe('AnorcarBatchController (e2e)', () => {
+describe('Batch HTTP smoke (no schedules or database)', () => {
 	let app: INestApplication;
-
-	beforeEach(async () => {
-		const moduleFixture: TestingModule = await Test.createTestingModule({
-			imports: [AnorcarBatchModule],
-		}).compile();
-
-		app = moduleFixture.createNestApplication();
+	beforeAll(async () => {
+		const module = await Test.createTestingModule({ controllers: [BatchController], providers: [
+			{ provide: BatchService, useFactory: () => new BatchService({} as never, {} as never) },
+		] }).compile();
+		app = module.createNestApplication();
 		await app.init();
 	});
-
-	it('/ (GET)', () => {
-		return request(app.getHttpServer()).get('/').expect(200).expect('Hello World!');
-	});
+	afterAll(async () => { await app.close(); });
+	it('returns the batch welcome response', () => request(app.getHttpServer()).get('/').expect(200).expect('Welcome to BATCH Server!'));
 });

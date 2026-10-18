@@ -1,13 +1,7 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { CarService } from './car.service';
 import { Cars, Car } from '../../libs/dto/car/car';
-import {
-	AgentCarsInquiry,
-	AllCarsInquiry,
-	OrdinaryInquiry,
-	CarsInquiry,
-	CarInput,
-} from '../../libs/dto/car/car.input';
+import { AgentCarsInquiry, AllCarsInquiry, OrdinaryInquiry, CarsInquiry, CarInput } from '../../libs/dto/car/car.input';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -30,73 +24,73 @@ export class CarResolver {
 		@Args('input') input: CarInput,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Car> {
-		console.log('Mutation: createCar');
+
 		input.memberId = memberId;
 
 		return await this.carService.createCar(input);
 	}
 
 	@UseGuards(WithoutGuard)
-	@Query((returns) => Car)
+	@Query((_returns) => Car)
 	public async getCar(
 		@Args('carId') input: string,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Car> {
-		console.log('Query: getCar');
+
 		const carId = shapeIntoMongoObjectId(input);
 		return await this.carService.getCar(memberId, carId);
 	}
 
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)
-	@Mutation((returns) => Car)
+	@Mutation((_returns) => Car)
 	public async updateCar(
 		@Args('input') input: CarUpdate,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Car> {
-		console.log('Mutation: updateCar');
+
 		input._id = shapeIntoMongoObjectId(input._id);
 		return await this.carService.updateCar(memberId, input);
 	}
 
 	@UseGuards(WithoutGuard)
-	@Query((returns) => Cars)
+	@Query((_returns) => Cars)
 	public async getCars(
 		@Args('input') input: CarsInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Cars> {
-		console.log('Query: getCars');
+
 		return await this.carService.getCars(memberId, input);
 	}
 
 	@UseGuards(AuthGuard)
-	@Query((returns) => Cars)
+	@Query((_returns) => Cars)
 	public async getFavorites(
 		@Args('input') input: OrdinaryInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Cars> {
-		console.log('Query:  getFavorites');
+
 		return await this.carService.getFavorites(memberId, input);
 	}
 
 	@UseGuards(AuthGuard)
-	@Query((returns) => Cars)
+	@Query((_returns) => Cars)
 	public async getVisited(
 		@Args('input') input: OrdinaryInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Cars> {
-		console.log('Query:  getVisited');
+
 		return await this.carService.getVisited(memberId, input);
 	}
 
 	@Roles(MemberType.AGENT)
 	@UseGuards(RolesGuard)
-	@Query((returns) => Cars)
+	@Query((_returns) => Cars)
 	public async getAgentCars(
 		@Args('input') input: AgentCarsInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Cars> {
-		console.log('Query: getAgentCars');
+
 		return await this.carService.getAgentCars(memberId, input);
 	}
 
@@ -106,7 +100,7 @@ export class CarResolver {
 		@Args('carId') input: string,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Car> {
-		console.log('Mutation: likeTargetCar');
+
 		const likeRefId = shapeIntoMongoObjectId(input);
 		return await this.carService.likeTargetCar(memberId, likeRefId);
 	}
@@ -115,28 +109,28 @@ export class CarResolver {
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
-	@Query((returns) => Cars)
+	@Query((_returns) => Cars)
 	public async getAllCarsByAdmin(
 		@Args('input') input: AllCarsInquiry,
-		@AuthMember('_id') memberId: ObjectId,
+		@AuthMember('_id') _memberId: ObjectId,
 	): Promise<Cars> {
-		console.log('Query: getAllCarsByAdmin');
+
 		return await this.carService.getAllCarsByAdmin(input);
 	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
-	@Mutation((returns) => Car) // <--- yangilangan Car
+	@Mutation((_returns) => Car) // <--- yangilangan Car
 	public async updateCarByAdmin(@Args('input') input: CarUpdate): Promise<Car> {
-		console.log('Mutation: updateCarByAdmin');
+
 		return await this.carService.updateCarByAdmin(input);
 	}
 
 	@Roles(MemberType.ADMIN)
 	@UseGuards(RolesGuard)
-	@Mutation((returns) => Car)
+	@Mutation((_returns) => Car)
 	public async removeCarByAdmin(@Args('carId') input: string): Promise<Car> {
-		console.log('Mutation: removeCarByAdmin');
+
 		const carId = shapeIntoMongoObjectId(input);
 		return await this.carService.removeCarByAdmin(carId);
 	}

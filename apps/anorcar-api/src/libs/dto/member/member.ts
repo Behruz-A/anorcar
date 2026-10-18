@@ -1,5 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
+import { AgentType, AgentLanguage, MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
 import type { ObjectId } from 'mongoose';
 import { MeLiked } from '../like/like';
 import { MeFollowed } from '../follow/follow';
@@ -37,6 +37,11 @@ export class Member {
 
 	@Field(() => String, { nullable: true })
 	memberDesc?: string;
+
+	@Field(() => AgentType, { nullable: true })
+	agentType?: AgentType | null;
+	@Field(() => [AgentLanguage], { nullable: true })
+	agentLanguages?: AgentLanguage[] | null;
 
 	@Field(() => Int)
 	memberCars!: number;

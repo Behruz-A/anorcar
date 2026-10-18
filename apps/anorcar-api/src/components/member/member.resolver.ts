@@ -12,10 +12,11 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/memberr.update';
 import { getSerialForImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
-import { v4 as uuidv4 } from 'uuid';
+
 import * as path from 'path';
 import { Message } from '../../libs/enums/common.enum';
 import { createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
 
 import { GraphQLUpload, type FileUpload } from 'graphql-upload';
 import { AuthSessionService } from '../auth/auth-session.service';
@@ -27,7 +28,7 @@ export class MemberResolver {
 
 	@Mutation(() => Member)
 	public async signup(@Args('input') input: MemberInput, @Context() context: AuthContext): Promise<Member> {
-		console.log('Mutation: signup');
+
 		this.authSessionService.assertBrowserRequest(context.req);
 		const member = await this.memberService.signup(input);
 		await this.authSessionService.startSession(member, context.req, context.res);
@@ -36,7 +37,7 @@ export class MemberResolver {
 
 	@Mutation(() => Member)
 	public async login(@Args('input') input: LoginInput, @Context() context: AuthContext): Promise<Member> {
-		console.log('Mutation: login');
+
 		this.authSessionService.assertBrowserRequest(context.req);
 		const member = await this.memberService.login(input);
 		await this.authSessionService.startSession(member, context.req, context.res);
@@ -50,7 +51,6 @@ export class MemberResolver {
 		@AuthMember() //
 		authMember: Member,
 	): Promise<string> {
-		console.log('Query: checkAuthRoles');
 
 		return `Hi ${authMember.memberNick}, //
 		you are${authMember.memberType} (memberId: ${authMember._id})`;
@@ -62,8 +62,7 @@ export class MemberResolver {
 		@AuthMember('memberNick') //
 		memberNick: string,
 	): Promise<string> {
-		console.log('Query: checkAuth');
-		console.log('memberNick:', memberNick);
+
 		return `Hi ${memberNick}`;
 	}
 
@@ -74,9 +73,8 @@ export class MemberResolver {
 		@Args('input') input: MemberUpdate,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
-		console.log('Mutation: updateMember');
-		delete (input as Partial<MemberUpdate>)._id;
-		console.log('memberId:', memberId);
+
+
 		return await this.memberService.updateMember(memberId, input);
 	}
 
@@ -87,7 +85,7 @@ export class MemberResolver {
 		input: string,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
-		console.log('Mutation: getMember');
+
 		const targetId = shapeIntoMongoObjectId(input);
 		return await this.memberService.getMember(memberId, targetId);
 	}
@@ -99,7 +97,7 @@ export class MemberResolver {
 		input: AgentsInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Members> {
-		console.log('Query: getAgents');
+
 		return await this.memberService.getAgents(memberId, input);
 	}
 
@@ -109,7 +107,7 @@ export class MemberResolver {
 		@Args('memberId') input: string,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Member> {
-		console.log('Mutation: likeTargetMember');
+
 		const likeRefId = shapeIntoMongoObjectId(input);
 		return await this.memberService.likeTargetMember(memberId, likeRefId);
 	}
@@ -124,7 +122,7 @@ export class MemberResolver {
 		@Args('input') //
 		input: MembersInquiry,
 	): Promise<Members> {
-		console.log('Query:  getAllMembersByAdmin');
+
 		return await this.memberService.getAllMembersByAdmin(input);
 	}
 
@@ -136,86 +134,47 @@ export class MemberResolver {
 		@Args('input') //
 		input: MemberUpdate,
 	): Promise<Member> {
-		console.log('Mutation: updateMemberByAdmin');
+
 		return await this.memberService.updateMemberByAdmin(input);
 	}
 
-	/**UPLOADER */
+	/** Existing authenticated upload contract; all files stay inside the three image stores. */
+	private assertUploadTarget(target: string): void {
+		if (!['member', 'car', 'article'].includes(target)) throw new Error(Message.UPLOAD_FAILED);
+	}
 
-	@UseGuards(AuthGuard)
-	@Mutation((returns) => String)
-	public async imageUploader(
-		@Args({ name: 'file', type: () => GraphQLUpload })
-		file: unknown,
-		@Args('target') target: string,
-	): Promise<string> {
-		console.log('Mutation: imageUploader');
-		const { createReadStream, filename, mimetype } = await (file as Promise<FileUpload>);
-
-		if (!filename) throw new Error(Message.UPLOAD_FAILED);
-		const extension = path.extname(filename).toLowerCase();
-		const validExtension = ['.jpg', '.jpeg', '.png'].includes(extension);
-		const validMime = validMimeTypes.includes(mimetype);
-		console.log('Upload file:', { filename, mimetype });
-		if (!validMime && !(mimetype === 'application/octet-stream' && validExtension)) {
-			throw new Error(`${Message.PROVIDE_ALLOWED_FORMAT} Received: ${mimetype || 'unknown'}`);
+	private async storeImage(file: Promise<FileUpload>, target: string): Promise<string> {
+		const { createReadStream, filename, mimetype } = await file;
+		const extension = path.extname(filename || '').toLowerCase();
+		if (!['.jpg', '.jpeg', '.png'].includes(extension) ||
+			(!validMimeTypes.includes(mimetype) && mimetype !== 'application/octet-stream'))
+			throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+		const url = `uploads/${target}/${getSerialForImage('image' + extension)}`;
+		try {
+			await pipeline(createReadStream(), createWriteStream(url, { flags: 'wx' }));
+		} catch {
+			throw new Error(Message.UPLOAD_FAILED);
 		}
-
-		const imageName = getSerialForImage(filename);
-		const url = `uploads/${target}/${imageName}`;
-		const stream = createReadStream();
-
-		const result = await new Promise((resolve, reject) => {
-			stream
-				.pipe(createWriteStream(url))
-				.on('finish', async () => resolve(true))
-				.on('error', () => reject(false));
-		});
-		if (!result) throw new Error(Message.UPLOAD_FAILED);
-
 		return url;
 	}
 
 	@UseGuards(AuthGuard)
-	@Mutation((returns) => [String])
+	@Mutation(() => String)
+	public async imageUploader(
+		@Args({ name: 'file', type: () => GraphQLUpload }) file: unknown,
+		@Args('target') target: string,
+	): Promise<string> {
+		this.assertUploadTarget(target);
+		return this.storeImage(file as Promise<FileUpload>, target);
+	}
+
+	@UseGuards(AuthGuard)
+	@Mutation(() => [String])
 	public async imagesUploader(
-		@Args('files', { type: () => [GraphQLUpload] })
-		files: Promise<FileUpload>[],
-		@Args('target') target: String,
+		@Args('files', { type: () => [GraphQLUpload] }) files: Promise<FileUpload>[],
+		@Args('target') target: string,
 	): Promise<string[]> {
-		console.log('Mutation: imagesUploader');
-
-		const uploadedImages: string[] = [];
-		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<Promise<void>> => {
-			try {
-				const { filename, mimetype, encoding, createReadStream } = await img;
-
-				const extension = path.extname(filename).toLowerCase();
-				const validExtension = ['.jpg', '.jpeg', '.png'].includes(extension);
-				const validMime = validMimeTypes.includes(mimetype);
-				if (!validMime && !(mimetype === 'application/octet-stream' && validExtension)) {
-					throw new Error(`${Message.PROVIDE_ALLOWED_FORMAT} Received: ${mimetype || 'unknown'}`);
-				}
-
-				const imageName = getSerialForImage(filename);
-				const url = `uploads/${target}/${imageName}`;
-				const stream = createReadStream();
-
-				const result = await new Promise((resolve, reject) => {
-					stream
-						.pipe(createWriteStream(url))
-						.on('finish', () => resolve(true))
-						.on('error', () => reject(false));
-				});
-				if (!result) throw new Error(Message.UPLOAD_FAILED);
-
-				uploadedImages[index] = url;
-			} catch (err) {
-				console.log('Error, file missing!');
-			}
-		});
-
-		await Promise.all(promisedList);
-		return uploadedImages;
+		this.assertUploadTarget(target);
+		return Promise.all(files.map(file => this.storeImage(file, target)));
 	}
 }

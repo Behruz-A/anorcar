@@ -1,8 +1,10 @@
 import { Schema } from 'mongoose';
-import { CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../libs/enums/car.enum';
+import { CarBodyType, CarSegment, CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../libs/enums/car.enum';
 
 const CarSchema = new Schema(
 	{
+		carBodyType: { type: String, enum: CarBodyType },
+		carSegment: { type: String, enum: CarSegment },
 		carStatus: { type: String, enum: CarStatus, default: CarStatus.ACTIVE },
 		carFuelType: { type: String, enum: CarFuelType, required: true },
 		carCondition: { type: String, enum: CarCondition, required: true },
@@ -34,5 +36,7 @@ const CarSchema = new Schema(
 
 CarSchema.index({ brandId: 1, carModel: 1, carYear: 1 });
 CarSchema.index({ carStatus: 1, carLocation: 1, carFuelType: 1, carCondition: 1, carTransmission: 1 });
+
+CarSchema.index({ carStatus: 1, carBodyType: 1, carSegment: 1 });
 
 export default CarSchema;

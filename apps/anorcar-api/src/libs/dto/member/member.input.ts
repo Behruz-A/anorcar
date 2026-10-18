@@ -1,6 +1,7 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
-import { MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
+import { Type } from 'class-transformer';
+import { ArrayMaxSize, ArrayUnique, IsArray, IsEnum, IsIn, IsInt, IsNotEmpty, IsOptional, Length, Max, Min, ValidateNested } from 'class-validator';
+import { AgentType, AgentLanguage, MemberAuthType, MemberStatus, MemberType } from '../../enums/member.enum';
 import { availableAgentSorts, availableMemberSorts } from '../../config';
 import { Direction } from '../../enums/common.enum';
 
@@ -44,6 +45,36 @@ export class LoginInput {
 @InputType()
 class AISearch {
 	@IsOptional()
+	@Length(1, 100)
+	@Field(() => String, { nullable: true })
+	location?: string;
+	@IsOptional()
+	@IsArray()
+	@ArrayUnique()
+	@ArrayMaxSize(2)
+	@IsEnum(AgentType, { each: true })
+	@Field(() => [AgentType], { nullable: true })
+	agentTypes?: AgentType[];
+	@IsOptional()
+	@IsArray()
+	@ArrayUnique()
+	@ArrayMaxSize(7)
+	@IsEnum(AgentLanguage, { each: true })
+	@Field(() => [AgentLanguage], { nullable: true })
+	languages?: AgentLanguage[];
+	@IsOptional()
+	@IsInt()
+	@Min(0)
+	@Max(2147483647)
+	@Field(() => Int, { nullable: true })
+	minCars?: number;
+	@IsOptional()
+	@IsInt()
+	@Min(0)
+	@Max(2147483647)
+	@Field(() => Int, { nullable: true })
+	maxCars?: number;
+	@IsOptional()
 	@Field(() => String, { nullable: true })
 	text?: string;
 }
@@ -70,6 +101,8 @@ export class AgentsInquiry {
 	direction?: Direction;
 
 	@IsNotEmpty()
+	@ValidateNested()
+	@Type(() => AISearch)
 	@Field(() => AISearch)
 	search!: AISearch;
 }

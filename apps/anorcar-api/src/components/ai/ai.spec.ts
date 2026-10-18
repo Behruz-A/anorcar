@@ -29,6 +29,7 @@ class TestQuery {
 }
 
 describe('AI service cost and safety controls', () => {
+	beforeEach(() => { jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined); });
 	afterEach(() => { jest.restoreAllMocks(); jest.useRealTimers(); });
 	it('sends only the current message with bounded output, fixed server instructions and one candidate', async () => {
 		const { ai, generate } = service();
@@ -83,6 +84,8 @@ describe('AI service cost and safety controls', () => {
 		await jest.advanceTimersByTimeAsync(1001); await rejection;
 		expect(generate).toHaveBeenCalledTimes(1);
 		expect(generate.mock.calls[0][0].config?.abortSignal?.aborted).toBe(true);
+		expect(Logger.prototype.warn).toHaveBeenCalledWith('AI_FAILURE reason=concurrency_limit');
+		expect(Logger.prototype.warn).toHaveBeenCalledWith('AI_FAILURE reason=timeout');
 	});
 	it('redacts invalid-key/provider failures and retains the configured model', async () => {
 		const { ai, generate } = service({ GEMINI_MODEL: 'gemini-3.1-flash-lite', GEMINI_MAX_OUTPUT_TOKENS: '150' });
@@ -94,6 +97,30 @@ describe('AI service cost and safety controls', () => {
 	it('handles empty or safety-blocked output', async () => {
 		const { ai, generate } = service(); generate.mockResolvedValue({ text: undefined } as Awaited<ReturnType<GoogleGenAI['models']['generateContent']>>);
 		await expect(ai.ask('Hello', 'ip')).rejects.toThrow(AI_UNAVAILABLE);
+		expect(Logger.prototype.warn).toHaveBeenLastCalledWith('AI_FAILURE reason=empty_response');
+	});
+	it('distinguishes missing configuration and budget exhaustion without exposing secrets', async () => {
+		await expect(new AiService(config({ GEMINI_API_KEY: '' })).ask('private-sentinel', 'private-ip')).rejects.toThrow(AI_UNAVAILABLE);
+		expect(Logger.prototype.warn).toHaveBeenLastCalledWith('AI_FAILURE reason=missing_key');
+		const { ai } = service({ AI_DAILY_REQUEST_LIMIT: '1' });
+		await ai.ask('Hello', 'ip1');
+		await expect(ai.ask('private-sentinel', 'private-ip')).rejects.toThrow(AI_UNAVAILABLE);
+		expect(Logger.prototype.warn).toHaveBeenLastCalledWith('AI_FAILURE reason=daily_limit');
+	});
+	it.each([400, 401, 402, 403, 404, 429, 500, 503])('logs only the provider HTTP status (%s), never its payload or stack', async (status) => {
+		const { ai, generate } = service();
+		generate.mockRejectedValue(Object.assign(new Error('fixture-key private-sentinel https://provider.example/?key=fixture-key'), { status, payload: { apiKey: 'fixture-key' } }));
+		await expect(ai.ask('private-sentinel', 'private-ip', 'private-member')).rejects.toThrow(AI_UNAVAILABLE);
+		expect(Logger.prototype.warn).toHaveBeenLastCalledWith('AI_FAILURE reason=provider_failure status=' + status);
+		const logs = JSON.stringify((Logger.prototype.warn as jest.Mock).mock.calls);
+		for (const secret of ['fixture-key', 'private-sentinel', 'private-ip', 'private-member', 'provider.example', 'payload', 'stack']) expect(logs).not.toContain(secret);
+		expect(generate).toHaveBeenCalledTimes(1);
+	});
+	it.each(['403 fixture-key', NaN, Infinity, 403.5, 200, 999, undefined])('does not log untrusted or invalid provider status values (%s)', async (status) => {
+		const { ai, generate } = service();
+		generate.mockRejectedValue({ status, message: 'fixture-key private-sentinel' });
+		await expect(ai.ask('Hello', 'ip')).rejects.toThrow(AI_UNAVAILABLE);
+		expect(Logger.prototype.warn).toHaveBeenLastCalledWith('AI_FAILURE reason=provider_failure');
 	});
 	it('rejects unsafe config rather than silently choosing another model', () => {
 		expect(() => aiConfig(config({ GEMINI_MODEL: 'gemini-pro' }))).toThrow();

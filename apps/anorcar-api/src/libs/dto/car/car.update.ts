@@ -2,12 +2,14 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { ArrayNotEmpty, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsOptional, IsString, Length, Max, Min } from 'class-validator';
 import { Transform } from 'class-transformer';
 import * as mongoose from 'mongoose';
-import { CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../../enums/car.enum';
+import { CarBodyType, CarSegment, CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../../enums/car.enum';
 
 const MAX_CAR_YEAR = new Date().getFullYear() + 1;
 
 @InputType()
 export class CarUpdate {
+ @IsOptional() @IsEnum(CarBodyType) @Field(() => CarBodyType, { nullable: true }) carBodyType?: CarBodyType | null;
+ @IsOptional() @IsEnum(CarSegment) @Field(() => CarSegment, { nullable: true }) carSegment?: CarSegment | null;
 	@IsNotEmpty() @Field(() => String) _id!: mongoose.ObjectId;
 	@IsOptional() @IsEnum(CarFuelType) @Field(() => CarFuelType, { nullable: true }) carFuelType?: CarFuelType;
 	@IsOptional() @IsEnum(CarCondition) @Field(() => CarCondition, { nullable: true }) carCondition?: CarCondition;

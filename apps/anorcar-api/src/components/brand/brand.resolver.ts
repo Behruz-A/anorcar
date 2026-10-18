@@ -1,6 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { ObjectId } from 'mongoose';
+
 import { Brand } from '../../libs/dto/brand/brand';
 import { BrandInput } from '../../libs/dto/brand/brand.input';
 import { BrandUpdate } from '../../libs/dto/brand/brand.update';

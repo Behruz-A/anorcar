@@ -1,28 +1,23 @@
 import { Logger } from '@nestjs/common';
-import {
-	OnGatewayConnection,
-	OnGatewayDisconnect,
-	OnGatewayInit,
-	SubscribeMessage,
-	WebSocketGateway,
-	WebSocketServer,
-} from '@nestjs/websockets';
+import { OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server } from 'ws';
 import * as WebSocket from 'ws';
-import * as url from 'url';
+import type { IncomingMessage } from 'http';
 import { Member } from '../libs/dto/member/member';
 import { AuthService } from '../components/auth/auth.service';
+
+type ChatMember = Pick<Member, '_id' | 'memberNick' | 'memberImage' | 'memberType'>;
 
 interface MessagePayload {
 	event: string;
 	text: string;
-	memberData: Member | null;
+	memberData: ChatMember | null;
 }
 
 interface InfoPayload {
 	event: string;
 	totalClients: number;
-	memberData: Member | null;
+	memberData: ChatMember | null;
 	action: string;
 }
 
@@ -38,28 +33,26 @@ export class SocketGateway implements OnGatewayInit {
 	@WebSocketServer()
 	server!: Server;
 
-	public afterInit(server: Server) {
+	public afterInit(_server: Server) {
 		this.logger.verbose(`WebSocket Server Initialized & total [${this.summaryClient}]`);
 	}
 
-	private async retrieveAuth(req: any): Promise<Member | null> {
+	private async retrieveAuth(req: IncomingMessage): Promise<Member | null> {
 		try {
-			const parseUrl = url.parse(req.url, true);
-			const { token } = parseUrl.query;
-
-			if (typeof token !== 'string') return null;
+			const tokens = new URL(req.url || '/', 'http://localhost').searchParams.getAll('token');
+			if (tokens.length !== 1) return null;
+			const token = tokens[0];
 			const normalizedToken = token.trim().replace(/^Bearer\s+/i, '');
 			if (!normalizedToken) return null;
 
 			return await this.authService.verifyToken(normalizedToken);
 		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Unknown authentication error';
-			this.logger.warn(`WebSocket authentication failed: ${message}`);
+			this.logger.warn('WebSocket authentication failed');
 			return null;
 		}
 	}
 
-	public async handleConnection(client: WebSocket, req: any) {
+	public async handleConnection(client: WebSocket, req: IncomingMessage) {
 		const authMember = await this.retrieveAuth(req);
 		this.summaryClient++;
 		this.clientsAuthMap.set(client, authMember);
@@ -70,7 +63,7 @@ export class SocketGateway implements OnGatewayInit {
 		const infoMsg: InfoPayload = {
 			event: 'info',
 			totalClients: this.summaryClient,
-			memberData: authMember,
+			memberData: this.chatMember(authMember),
 			action: 'joined',
 		};
 		this.emitMessage(infoMsg);
@@ -87,7 +80,7 @@ export class SocketGateway implements OnGatewayInit {
 		const infoMsg: InfoPayload = {
 			event: 'info',
 			totalClients: this.summaryClient,
-			memberData: authMember,
+			memberData: this.chatMember(authMember),
 			action: 'left',
 		};
 		this.broadcastMessage(client, infoMsg);
@@ -100,10 +93,9 @@ export class SocketGateway implements OnGatewayInit {
 		const expired = cachedMember && ((cachedMember.exp ?? 0) <= now || (cachedMember.iat ?? 0) + 900 <= now);
 		const authMember = expired ? null : cachedMember ?? null;
 		if (expired) this.clientsAuthMap.set(client, null);
-		const newMessage: MessagePayload = { event: 'message', text: payload, memberData: authMember };
+		const newMessage: MessagePayload = { event: 'message', text: payload, memberData: this.chatMember(authMember) };
 
-		const clientNick: string = authMember?.memberNick ?? 'Guest';
-		this.logger.verbose(`NEW MESSAGE [${clientNick}]: ${payload}`);
+		this.logger.verbose('WebSocket message received');
 
 		this.messagesList.push(newMessage);
 		if (this.messagesList.length > 5) this.messagesList.splice(0, this.messagesList.length - 5);
@@ -111,6 +103,11 @@ export class SocketGateway implements OnGatewayInit {
 		this.emitMessage(newMessage);
 		//client messages
 		client.send(JSON.stringify({ event: 'getMessages', list: this.messagesList }));
+	}
+
+	private chatMember(member: Member | null): ChatMember | null {
+		if (!member) return null;
+		return { _id: member._id, memberNick: member.memberNick, memberImage: member.memberImage, memberType: member.memberType };
 	}
 
 	private broadcastMessage(sender: WebSocket, message: InfoPayload | MessagePayload) {

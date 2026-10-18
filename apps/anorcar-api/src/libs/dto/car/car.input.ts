@@ -4,13 +4,15 @@ import { Transform } from 'class-transformer';
 import { Types } from 'mongoose';
 import type { ObjectId } from 'mongoose';
 import { Direction } from '../../enums/common.enum';
-import { CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../../enums/car.enum';
+import { CarBodyType, CarSegment, CarCondition, CarFuelType, CarLocation, CarStatus, CarTransmission } from '../../enums/car.enum';
 import { availableCarOptions, availableCarSorts } from '../../config';
 
 const MAX_CAR_YEAR = new Date().getFullYear() + 1;
 
 @InputType()
 export class CarInput {
+ @IsOptional() @IsEnum(CarBodyType) @Field(() => CarBodyType, { nullable: true }) carBodyType?: CarBodyType | null;
+ @IsOptional() @IsEnum(CarSegment) @Field(() => CarSegment, { nullable: true }) carSegment?: CarSegment | null;
 	@IsEnum(CarFuelType) @Field(() => CarFuelType) carFuelType!: CarFuelType;
 	@IsEnum(CarCondition) @Field(() => CarCondition) carCondition!: CarCondition;
 	@IsNotEmpty() @Length(1, 80) @Field(() => String) carModel!: string;
@@ -42,6 +44,8 @@ export class NumberRange {
 
 @InputType()
 class CarSearch {
+ @IsOptional() @IsEnum(CarBodyType, { each: true }) @Field(() => [CarBodyType], { nullable: true }) bodyTypes?: CarBodyType[];
+ @IsOptional() @IsEnum(CarSegment, { each: true }) @Field(() => [CarSegment], { nullable: true }) segments?: CarSegment[];
 	@IsOptional() @Field(() => String, { nullable: true }) memberId?: Types.ObjectId;
 	@IsOptional() @Field(() => [String], { nullable: true }) brandIds?: Types.ObjectId[];
 	@IsOptional() @Field(() => [CarLocation], { nullable: true }) locations?: CarLocation[];

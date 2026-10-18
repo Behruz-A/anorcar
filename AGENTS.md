@@ -4,6 +4,8 @@ ANORCAR is a NestJS GraphQL monorepo migrated from Real estate platform into a c
 
 ## Read First
 
+Always keep the code architecture exactly the same as Nestar's. Don't change the architecture or introduce a new code style!!!!
+
 Before changing code, read the current AI handoff docs:
 
 -`docs/ai/BACKEND_MIGRATION.md`

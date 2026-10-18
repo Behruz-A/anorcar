@@ -15,7 +15,7 @@ import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { Follower, Following, MeFollowed } from '../../libs/dto/follow/follow';
-import { lookupAuthMemberLiked } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupAuthMemberFollowed, literalSearchRegex } from '../../libs/config';
 
 @Injectable()
 export class MemberService {
@@ -27,6 +27,8 @@ export class MemberService {
 		private readonly likeService: LikeService,
 	) {}
 	public async signup(input: MemberInput): Promise<Member> {
+		if (input.memberType != null && ![MemberType.USER, MemberType.AGENT].includes(input.memberType))
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		input.memberPassword = await this.authService.hashPassword(input.memberPassword);
 
 		try {
@@ -36,13 +38,13 @@ export class MemberService {
 
 			return result;
 		} catch (err: any) {
-			console.log('Error, Service.model:', err.message);
+
 			throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
 		}
 	}
 
 	public async login(input: LoginInput): Promise<Member> {
-		const { memberNick, memberPassword } = input;
+		const { memberNick } = input;
 
 		const response: Member = (await this.memberModel
 			.findOne({ memberNick: memberNick })
@@ -68,8 +70,11 @@ export class MemberService {
 	}
 
 	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
+		if (String(input._id) !== String(memberId) || input.memberType !== undefined || input.memberStatus !== undefined)
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		const update = await this.memberUpdateFields(input);
 		const result = (await this.memberModel
-			.findOneAndUpdate({ _id: memberId, memberStatus: MemberStatus.ACTIVE }, input, { new: true })
+			.findOneAndUpdate({ _id: memberId, memberStatus: MemberStatus.ACTIVE }, update, { new: true })
 			.exec()) as Member;
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 		result.accessToken = await this.authService.createToken(result);
@@ -124,19 +129,37 @@ export class MemberService {
 	}
 
 	public async getAgents(memberId: ObjectId, input: AgentsInquiry): Promise<Members> {
-		const { text } = input.search;
+		const { text, location, agentTypes, languages, minCars, maxCars } = input.search;
 		const match: T = { memberType: MemberType.AGENT, memberStatus: MemberStatus.ACTIVE };
 		const sort: T = { [input?.sort ?? 'createdAt']: input.direction ?? Direction.DESC };
 
-		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
-		console.log('match:', match);
+		if (text)
+			match.$or = ['memberNick', 'memberFullName', 'memberAddress', 'memberDesc'].map((field) => ({
+				[field]: { $regex: literalSearchRegex(text) },
+			}));
+		if (location) match.memberAddress = { $regex: new RegExp(location.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') };
+		if (agentTypes?.length) match.agentType = { $in: agentTypes };
+		if (languages?.length) match.agentLanguages = { $all: languages };
+		if (minCars != null && maxCars != null && minCars > maxCars)
+			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+		if (minCars != null || maxCars != null)
+			match.memberCars = {
+				...(minCars != null ? { $gte: minCars } : {}),
+				...(maxCars != null ? { $lte: maxCars } : {}),
+			};
+
 		const result = await this.memberModel
 			.aggregate([
 				{ $match: match },
 				{ $sort: sort },
 				{
 					$facet: {
-						list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }, lookupAuthMemberLiked(memberId)],
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupAuthMemberLiked(memberId),
+							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$_id' }),
+						],
 
 						metaCounter: [{ $count: 'total' }],
 					},
@@ -176,8 +199,8 @@ export class MemberService {
 
 		if (memberStatus) match.memberStatus = memberStatus;
 		if (memberType) match.memberType = memberType;
-		if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
-		console.log('match:', match);
+		if (text) match.memberNick = { $regex: literalSearchRegex(text) };
+
 		const result = await this.memberModel
 			.aggregate([
 				{ $match: match },
@@ -194,8 +217,16 @@ export class MemberService {
 		return result[0];
 	}
 
+	private async memberUpdateFields(input: MemberUpdate): Promise<Partial<MemberUpdate>> {
+		const update: Partial<MemberUpdate> = { ...input };
+		delete update._id;
+		if (update.memberPassword !== undefined) update.memberPassword = await this.authService.hashPassword(update.memberPassword);
+		return update;
+	}
+
 	public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
-		const result = (await this.memberModel.findOneAndUpdate({ _id: input._id }, input, { new: true }).exec()) as Member;
+		const update = await this.memberUpdateFields(input);
+		const result = (await this.memberModel.findOneAndUpdate({ _id: input._id }, update, { new: true }).exec()) as Member;
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
 
 		return result;
