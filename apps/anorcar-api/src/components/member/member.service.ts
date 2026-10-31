@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Member, Members } from '../../libs/dto/member/member';
 import { AgentsInquiry, LoginInput, MemberInput, MembersInquiry } from '../../libs/dto/member/member.input';
-import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
+import { MemberAuthType, MemberStatus, MemberType } from '../../libs/enums/member.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/memberr.update';
@@ -27,6 +27,7 @@ export class MemberService {
 		private readonly likeService: LikeService,
 	) {}
 	public async signup(input: MemberInput): Promise<Member> {
+		if (input.memberAuthType === MemberAuthType.GOOGLE) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		if (input.memberType != null && ![MemberType.USER, MemberType.AGENT].includes(input.memberType))
 			throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
 		input.memberPassword = await this.authService.hashPassword(input.memberPassword);

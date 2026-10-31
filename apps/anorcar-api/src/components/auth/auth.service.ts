@@ -28,6 +28,7 @@ export class AuthService {
 		});
 
 		delete payload.memberPassword;
+		delete payload.googleSubject;
 		delete payload.accessToken;
 		delete payload.iat;
 		delete payload.exp;

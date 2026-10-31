@@ -21,10 +21,12 @@ const MemberSchema = new Schema(
 			default: MemberAuthType.PHONE,
 		},
 
+		googleSubject: { type: String, unique: true, sparse: true, select: false },
+
 		memberPhone: {
 			type: String,
 			index: { unique: true, sparse: true },
-			required: true,
+			required: function () { return this.memberAuthType !== MemberAuthType.GOOGLE; },
 		},
 
 		memberNick: {
@@ -36,7 +38,7 @@ const MemberSchema = new Schema(
 		memberPassword: {
 			type: String,
 			select: false,
-			required: true,
+			required: function () { return this.memberAuthType !== MemberAuthType.GOOGLE; },
 		},
 
 		memberFullName: {

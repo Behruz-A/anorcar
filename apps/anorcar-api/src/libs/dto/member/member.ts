@@ -18,8 +18,10 @@ export class Member {
 	@Field(() => MemberAuthType)
 	memberAuthType!: MemberAuthType;
 
-	@Field(() => String)
-	memberPhone!: string;
+	@Field(() => String, { nullable: true })
+	memberPhone?: string;
+
+	googleSubject?: string;
 
 	@Field(() => String)
 	memberNick!: string;
